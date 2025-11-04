@@ -78,6 +78,7 @@ freq  I Q U V
 3. `KAPPA` : $\kappa$ distribution ([Xiao 2006](https://iopscience.iop.org/article/10.1088/0741-3335/48/2/003))
 
 $\frac{d N}{d\gamma} \propto \gamma\sqrt{\gamma^2-1}(1+\frac{\gamma-1}{\kappa w})^{-(\kappa+1)}$
+
  Specifying $\kappa$ by setting `kappa_const` , and  $w$  is determined automatically
 
 3. `POWER` :  broke powerlaw
@@ -86,7 +87,7 @@ $\frac{d N}{d\gamma} \propto \gamma\sqrt{\gamma^2-1}(1+\frac{\gamma-1}{\kappa w}
 
 	`Power` : paw-law spectrum index
 
-	`Gamma_min` : $ \gamma_{min}$
+	`Gamma_min` : $\gamma_{min}$
 
 	`Gamma_max` : $\gamma_{max}$
 
@@ -166,3 +167,4 @@ In `model.c/init_model()`, you can choice the other initial function for followi
 
 
 Xufan Hu （胡旭凡） tie@mail.ustc.edu.cn 
+
