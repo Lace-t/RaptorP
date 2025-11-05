@@ -14,6 +14,9 @@
 #include "model_global_vars.h"
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_poly.h>
+#include <gsl/gsl_sf_hyperg.h>
+#include <gsl/gsl_sf_gamma.h>
+#include <gsl/gsl_errno.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -181,6 +184,8 @@ double get_w_kappa(double theta_e, double beta, double sigma, double kappa) {
 
         double x0, x1, x2;
         int num_roots = gsl_poly_solve_cubic(b/a, c/a, d/a, &x0, &x1, &x2);
+
+        //printf("num_roots=%d x0=%g x1=%g x2=%g\n",num_roots,x0,x1,x2);
         if (num_roots==1) w=x0;
         else if (num_roots==3){
             w=x0;
@@ -188,7 +193,7 @@ double get_w_kappa(double theta_e, double beta, double sigma, double kappa) {
             if (x2>w) w=x2;
         }
 		if (w<0){
-			printf("negative w");
+			//printf("negative w\n");
 			w=theta_e*(kappa-3.)/(kappa*(1.-eff));//return to Hongxuan's
 			//exit(0);
 		}
@@ -198,32 +203,32 @@ double get_w_kappa(double theta_e, double beta, double sigma, double kappa) {
 
 double get_kappa(double beta, double sigma){
     double aa, bb, cc, pp;
-#if (Epsilon == turbulence)
+#if (DF == KAPPA)
+	return kappa_const;
+#elif (Epsilon == turbulence)
 // Ref: Meringolo 2023ApJ Microphysical Plasma Relations from Special-relativistic Turbulence
-    aa = 2.8 + 0.2/sqrt(sigma);
-    bb = 1.6 * pow(sigma, (-6./10.));
-    cc = 2.25* pow(sigma,(1./3.));
-    pp = aa + bb*tanh(cc*beta);
-    if (pp < 3.1) pp = 3.1;
-    if (pp > 7.5) pp = 7.5;
-        //XF's w constraint
-//        double eff = get_efficiency(sigma, beta);
-//        if (pp<(2+1.529/(0.529+eff))) pp=2+1.529/(0.529+eff);
+	if (sigma > 0.1  &&  beta > 1.e-4 && sigma<10.0 && beta < 2.){
+		aa = 2.8 + 0.2/sqrt(sigma);
+		bb = 1.6 * pow(sigma, (-6./10.));
+		cc = 2.25* pow(sigma,(1./3.));
+		pp = aa + bb*tanh(cc*beta);
+		if (pp < 3.1) pp = 3.1;
+		if (pp > 7.5) pp = 7.5;
+	}
+	else pp=7.5;
     return pp;
 #elif (Epsilon == reconnection)
 // Ref: Ball 2018ApJ Electron and Proton Acceleration in Trans-relativistic Magnetic Reconnection: Dependence on
+	if (sigma > 0.01 && sigma<7.2 && beta < 2.5 && beta>1.e-4){
     aa = 2.8 + 0.7/sqrt(sigma);
     bb = 3.7 * pow(sigma, (-0.19));
     cc = 23.4* pow(sigma,(0.26));
     pp = aa + bb*tanh(cc*beta);
     if (pp < 3.1) pp = 3.1;
     if (pp > 7.5) pp = 7.5;
-//        //XF's w constraint
-//        double eff = get_efficiency(sigma, beta);
-//        if (pp<(2+1.529/(0.529+eff))) pp=2+1.529/(0.529+eff);
+	}
+	else pp=7.5;
     return pp;
-#elif (Epsilon == kappa_const)
-    return kappa_const;
 #endif
 }
 
@@ -794,19 +799,29 @@ double hyp2F1_f(double theta_e, double beta, double sigma, double kappa) {
     if (X < 1e-4) {
         return 0;
     }
+    z = -X;
 
-    else {
-        z = -X;
-        return pow(1. - z, -a) * tgamma(c) * tgamma(b - a) /
-                   (tgamma(b) * tgamma(c - a)) *
-                   gsl_sf_hyperg_2F1(a, c - b, a - b + 1., 1. / (1. - z)) +
-               pow(1. - z, -b) * tgamma(c) * tgamma(a - b) /
-                   (tgamma(a) * tgamma(c - b)) *
-                   gsl_sf_hyperg_2F1(b, c - a, b - a + 1., 1. / (1. - z));
+    // 设置GSL的错误处理机制
+    gsl_set_error_handler_off(); // 关闭默认的错误处理
+
+    // 使用try-catch的方式检测GSL函数返回的错误
+    gsl_sf_result hyp_result1,hyp_result2;
+    int status1 = gsl_sf_hyperg_2F1_e(a, c - b, a - b + 1., 1. / (1. - z), &hyp_result1);
+    int status2 = gsl_sf_hyperg_2F1_e(b, c - a, b - a + 1., 1. / (1. - z), &hyp_result2);
+
+    // 检查返回状态
+    if (status1 != GSL_SUCCESS || status2 != GSL_SUCCESS) {
+        printf("GSL hyp2F1 Error: a=%.4f b=%.4f c=%.4f z=%.4f\n",a,b,c,z);
+        exit(1); // 返回默认值或根据需求进行其他处理
     }
 
-    return 0;
+    // 如果没有错误，返回计算结果
+    return pow(1. - z, -a) * tgamma(c) * tgamma(b - a) /
+               (tgamma(b) * tgamma(c - a)) * hyp_result1.val +
+           pow(1. - z, -b) * tgamma(c) * tgamma(a - b) /
+               (tgamma(a) * tgamma(c - b)) * hyp_result2.val;
 }
+
 
 
 double a_I_kappa(double theta_e, double n_e, double nu, double B,
