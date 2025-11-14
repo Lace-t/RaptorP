@@ -122,7 +122,7 @@ void calculate_image_block(struct Camera *intensityfield,
                            double frequencies[num_frequencies]) {
 #if (LIGHTPATH)
 	FILE *fp = fopen("lightpaths.txt", "w");
-    fprintf(fp,"# alpha beta step x1 x2 x3 dlambda\n");
+    fprintf(fp,"# step alpha beta x1 x2 x3 R dlambda\n");
 #endif
 
 #pragma omp parallel for shared(frequencies, intensityfield, p)                \
@@ -147,8 +147,9 @@ void calculate_image_block(struct Camera *intensityfield,
         #pragma omp critical//to keep writing safe
 		{
 		for (int i = 0; i < steps; i++) {
-		    fprintf(fp, "%.4g %.4g %d %.4g %.4g %.4g %.4g\n",(*intensityfield).alpha[pixel],(*intensityfield).beta[pixel],
-                    i,lightpath2[i*9+1],lightpath2[i*9+2],lightpath2[i*9+3],lightpath2[i*9+8]);
+            double r=sqrt(lightpath2[i*9+1]*lightpath2[i*9+1]+lightpath2[i*9+2]*lightpath2[i*9+2]);
+		    fprintf(fp, "%d %.4g %.4g %.4g %.4g %.4g %.4g %.4g\n",i,(*intensityfield).alpha[pixel],(*intensityfield).beta[pixel],
+                    lightpath2[i*9+1],lightpath2[i*9+2],lightpath2[i*9+3],r,lightpath2[i*9+8]);
 			}
 		}
     #endif
