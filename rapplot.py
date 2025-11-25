@@ -31,7 +31,7 @@ class Raptor(object):
     Written by Xufan Hu 2024.11.30
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     '''
-    def __init__(self,M,d,name,root=''):
+    def __init__(self,M,d,name,root='',unit='mas'):
         #reading .h5 file
         self.__name=root+'/'+name
         print("Reading keys from: ",self.__name)
@@ -50,8 +50,11 @@ class Raptor(object):
         self.__M=M*MSUN
         self.__d=d*KPC
         self.rg=G*self.__M/SPEED_OF_LIGHT**2#show it by Raptor.rg
-        self.mas=self.rg/self.__d*DEG2MAS#show it by Raptor.mas
-        self.__tunit =self.rg/SPEED_OF_LIGHT
+        self.__unit=unit
+        if self.__unit=='mas':
+            self.mas=self.rg/self.__d*DEG2MAS#show it by Raptor.mas
+        elif self.__unit=='rg':
+            self.mas=1
 
     def keys(self):
         '''Return the index of the datafile
@@ -195,8 +198,12 @@ class Raptor(object):
         ax.xaxis.set_major_formatter(formatter)
 
         ax.tick_params(axis='both',which='both',direction='out')
-        ax.set_xlabel(r"x [mas]",loc='left')
-        ax.set_ylabel(r"y [mas]")
+        if self.__unit=='mas':
+            ax.set_xlabel(r"x [mas]",loc='left')
+            ax.set_ylabel(r"y [mas]")
+        elif self.__unit=='rg':
+            ax.set_xlabel(r"x [$r_g$]",loc='left')
+            ax.set_ylabel(r"y [$r_g$]")
         plt.tight_layout()
 
     def plot_pol(self,freq,vmin=0,vmax=0,size=None,scale='linear',figsize=(6,8),cmap="BuPu"):
@@ -281,8 +288,12 @@ class Raptor(object):
         ax.xaxis.set_major_formatter(formatter)
 
         ax.tick_params(axis='both',which='both',direction='out')
-        ax.set_xlabel(r"x",loc='left')
-        ax.set_ylabel(r"y")
+        if self.__unit=='mas':
+            ax.set_xlabel(r"x [mas]",loc='left')
+            ax.set_ylabel(r"y [mas]")
+        elif self.__unit=='rg':
+            ax.set_xlabel(r"x [$r_g$]",loc='left')
+            ax.set_ylabel(r"y [$r_g$]")
         plt.tight_layout()
 
     def plot_poldeg(self,freq,size=None,label='|m|',figsize=(6,8),cmap="afmhot"):
@@ -347,8 +358,12 @@ class Raptor(object):
         ax.xaxis.set_major_formatter(formatter)
 
         ax.tick_params(axis='both',which='both',direction='out')
-        ax.set_xlabel(r"x [mas]",loc='left')
-        ax.set_ylabel(r"y [mas]")
+        if self.__unit=='mas':
+            ax.set_xlabel(r"x [mas]",loc='left')
+            ax.set_ylabel(r"y [mas]")
+        elif self.__unit=='rg':
+            ax.set_xlabel(r"x [$r_g$]",loc='left')
+            ax.set_ylabel(r"y [$r_g$]")
         plt.tight_layout()
 
     def plot_evpa(self,freq,size=None,mask=0.1,floor=0.1,num=1,arrow=0.5,width=0.02,vmin=0,vmax=0,figsize=(6,8),scale='linear',cmap="afmhot",ax=None,fig=None):
@@ -479,8 +494,12 @@ class Raptor(object):
         ax.xaxis.set_major_formatter(formatter)
 
         ax.tick_params(axis='both',which='both',direction='out')
-        ax.set_xlabel(r"x [mas]",loc='left')
-        ax.set_ylabel(r"y [mas]")
+        if self.__unit=='mas':
+            ax.set_xlabel(r"x [mas]",loc='left')
+            ax.set_ylabel(r"y [mas]")
+        elif self.__unit=='rg':
+            ax.set_xlabel(r"x [$r_g$]",loc='left')
+            ax.set_ylabel(r"y [$r_g$]")
         plt.tight_layout()
         
     def plot_stokes(self,freq,size=None,figsize=(12,16),evpa=None,scale='linear',cmaps=("afmhot","RdBu","RdBu","RdBu"),vlim=([0,0],[0,0],[0,0],[0,0])):
