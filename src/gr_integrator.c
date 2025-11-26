@@ -258,7 +258,9 @@ double clip(double x){
 double stepsize(double X_u[4], double U_u[4]) {//RT_OUTER_CUTOFF
     double r = sqrt(X_u[1]*X_u[1]+X_u[2]*X_u[2]);
     if (r<RT_OUTER_CUTOFF) return -clip(r*STEPSIZE);
-    else return -r*STEPSIZE;
+//    else return -(r*STEPSIZE);
+    else return -((1-exp(1-r/RT_OUTER_CUTOFF))*0.5*(r-RT_OUTER_CUTOFF)+
+                  exp(1-r/RT_OUTER_CUTOFF)*clip(r*STEPSIZE));
 //    double SMALL = 1.e-80;
 //#if (metric == CKS)
 //    double dlx1 = STEPSIZE / (fabs(U_u[1]) + SMALL * SMALL);
