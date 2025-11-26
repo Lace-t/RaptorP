@@ -11,6 +11,7 @@ The other features are listed below:
 (1) Reading and processing both uniform and non-uniform **Cartesian** PLUTO grids.
 
 (2) Supporting a tracer to exclude the ambient medium. From one-sided jet simulation data, it can generate a symmetric two-sided jet.
+
 (3) Estimating the nonthermal electron fraction from PIC-informed  prescriptions, e.g. magnetic reconnection ([Ball et al. 2018](https://iopscience.iop.org/article/10.3847/1538-4357/aac820)) , turbulence ([Meringolo et al. 2023](https://iopscience.iop.org/article/10.3847/1538-4357/acaefe)); and proposing a self-consistent method for evaluating 'w' parameter in the $\kappa$ distribution (see the Appendix.B of the code paper for details).
 
 (4) Using a rectangle camera.
@@ -167,4 +168,5 @@ In `model.c/init_model()`, you can choice the other initial function for followi
 
 
 Xufan Hu （胡旭凡） tie@mail.ustc.edu.cn 
+
 
