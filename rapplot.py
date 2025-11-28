@@ -27,11 +27,15 @@ class Raptor(object):
                      number of datafile
     root(optional) : str
                      location of datafile
+                     (default: output)
+    unit(optional) : mas or rg
+                     unit of coordinate in figure, 
+                     (default: mas)
     --------------        
     Written by Xufan Hu 2024.11.30
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     '''
-    def __init__(self,M,d,name,root='',unit='mas'):
+    def __init__(self,M,d,name,root='output',unit='mas'):
         #reading .h5 file
         self.__name=root+'/'+name
         print("Reading keys from: ",self.__name)
