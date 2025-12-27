@@ -118,68 +118,77 @@ void read_model(char *argv[]) {
 
 // For a single block this function will iterate over the pixels and call
 // geodesic integrations as well as radiation transfer
-void calculate_image_block(struct Camera *intensityfield,
-                           double frequencies[num_frequencies]) {
-#if (LIGHTPATH)
-	FILE *fp = fopen("lightpaths.txt", "w");
+void calculate_image_block(struct Camera *intensityfield, double frequencies[num_frequencies]) {
+
+#if LIGHTPATH
+    FILE *fp = fopen("lightpaths.txt", "w");
     fprintf(fp,"# step alpha beta x1 x2 x3 R dlambda\n");
 #endif
 
-#pragma omp parallel for shared(frequencies, intensityfield, p)                \
-    schedule(static, 1)
-    for (int pixel = 0; pixel < tot_pixels; pixel++) {
-        int steps = 0;
+    #pragma omp parallel
+    {
+     double *lightpath2 = malloc(9 * max_steps * sizeof(double));
 
-        double *lightpath2 = malloc(9 * max_steps * sizeof(double));
-
-#if (POL)
-        double f_x = 0.;
-        double f_y = 0.;
-        double p = 0.;
-#endif
-        // INTEGRATE THIS PIXEL'S GEODESIC
-        integrate_geodesic((*intensityfield).alpha[pixel],
-                           (*intensityfield).beta[pixel], lightpath2, &steps,
-                           CUTOFF_INNER);
-
-    #if (LIGHTPATH)// write x1,x2,x3,dlambda for analysis
-		int thread_id = omp_get_thread_num();
-        #pragma omp critical//to keep writing safe
-		{
-		for (int i = 0; i < steps; i++) {
-            double r=sqrt(lightpath2[i*9+1]*lightpath2[i*9+1]+lightpath2[i*9+2]*lightpath2[i*9+2]);
-		    fprintf(fp, "%d %.4g %.4g %.4g %.4g %.4g %.4g %.4g\n",i,(*intensityfield).alpha[pixel],(*intensityfield).beta[pixel],
-                    lightpath2[i*9+1],lightpath2[i*9+2],lightpath2[i*9+3],r,lightpath2[i*9+8]);
-			}
-		}
+    #if LIGHTPATH
+        // 每线程私有输出缓冲区
+        char buffer[1024*1024]; // 1MB缓冲区，可根据需要调整
+        int pos = 0;
     #endif
-        // PERFORM RADIATIVE TRANSFER AT DESIRED FREQUENCIES, STORE RESULTS
-#if (POL)
-        for (int f = 0; f < num_frequencies; f++) {
 
-            radiative_transfer_polarized(lightpath2, steps, frequencies[f],
-                                         &f_x, &f_y, &p, 0,
-                                         (*intensityfield).IQUV[pixel][f],
-                                         &(*intensityfield).tau[pixel][f],
-                                         &(*intensityfield).tauF[pixel][f]);
-        }
+    #if POL
+        double f_x=0., f_y=0., p_val=0.;
+    #endif
 
-#else
-        radiative_transfer_unpolarized(lightpath2, steps, frequencies,
-                                       (*intensityfield).IQUV[pixel],
-                                       &(*intensityfield).tau[pixel]);
-        for (int f = 0; f < num_frequencies; f++) {
-            (*intensityfield).IQUV[pixel][f][0] *= pow(frequencies[f], 3.);
-        }
-#endif
-        free(lightpath2);
-    }
-#pragma omp barrier
+    #pragma omp for schedule(dynamic, 1)
+        for (int pixel = 0; pixel < tot_pixels; pixel++) {
+            int steps = 0;
+            // 计算光线路径
+            integrate_geodesic((*intensityfield).alpha[pixel],
+                               (*intensityfield).beta[pixel],
+                               lightpath2, &steps, CUTOFF_INNER);
+        #if LIGHTPATH
+            // 写入线程缓冲
+            pos = 0; // 每像素重置 pos
+            for (int i = 0; i < steps; i++) {
+                double r = sqrt(lightpath2[i*9+1]*lightpath2[i*9+1] +lightpath2[i*9+2]*lightpath2[i*9+2]);
+                pos += sprintf(buffer + pos, "%d %.4g %.4g %.4g %.4g %.4g %.4g %.4g\n",
+                               i, (*intensityfield).alpha[pixel], (*intensityfield).beta[pixel],
+                               lightpath2[i*9+1], lightpath2[i*9+2], lightpath2[i*9+3],
+                               r, lightpath2[i*9+8]);
+                }
 
-#if (LIGHTPATH)
+            // 临界区写入文件
+            #pragma omp critical
+            {
+                fwrite(buffer, 1, pos, fp);
+            }
+        #endif
+
+            // 辐射传输计算
+        #if POL
+            for (int f = 0; f < num_frequencies; f++) {
+                radiative_transfer_polarized(lightpath2, steps, frequencies[f],
+                                             &f_x, &f_y, &p_val, 0,
+                                             (*intensityfield).IQUV[pixel][f],
+                                             &(*intensityfield).tau[pixel][f],
+                                             &(*intensityfield).tauF[pixel][f]);
+            }
+        #else
+            radiative_transfer_unpolarized(lightpath2, steps, frequencies,
+                                           (*intensityfield).IQUV[pixel],
+                                           &(*intensityfield).tau[pixel]);
+            for (int f = 0; f < num_frequencies; f++) {
+                (*intensityfield).IQUV[pixel][f][0] *= pow(frequencies[f], 3.);
+            }
+        #endif
+        } // end for pixel
+    }// end parallel
+
+#if LIGHTPATH
     fclose(fp);
 #endif
 }
+
 
 // Functions that computes a spectrum at every frequency
 // by integrating over the image struct
