@@ -36,12 +36,12 @@
 #define RAD_TRANS (1)
 #define POL (1)
 
-#define num_frequencies 5
+#define num_frequencies 1
 
 #define FREQFILE (0)
 #define FREQLOG (1)
 
-#define FREQS (FREQFILE)
+#define FREQS (FREQLOG)
 
 #define EMISUSER (0)
 
@@ -84,12 +84,14 @@ typedef struct Camera {
 
 
 #define Power 2.3 // paw-law spectrum index
-#define Gamma_min 1.
+#define Gamma_min 1.e3
 #define Gamma_max 1.e6
 
 #define cooling (0) //nonthermal: break powerlaw with cooling
 #define nth (1) //nonthermal: powerlaw
 #define Power_type (cooling)
+
+#define OPTICAL_LIM 1.e6//xf: limitation for adaptive optical depth
 
 #define DEXTER (0) // use Dexter fit for rho_V_thermal
 
@@ -185,5 +187,5 @@ typedef struct Camera {
         for (int j = 0; j < DIM; j++)                                          \
             for (int k = 0; k < DIM; k++)                                      \
                 for (int l = 0; l < DIM; l++)
-
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif // DEFINITIONS_H
