@@ -393,7 +393,7 @@ void evaluate_coeffs_single(double *jI, double *jQ, double *jU, double *jV,
     *rU = 0.;
     *rV = rho_V(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
 
-    *aI = (a_I(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
+    //*aI = (a_I(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
     *aQ = (a_Q(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
     *aU = 0;
     *aV = (a_V(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
@@ -403,7 +403,7 @@ void evaluate_coeffs_single(double *jI, double *jQ, double *jU, double *jV,
     *jQ /= (nu_p * nu_p);
     *jV /= (nu_p * nu_p);
 
-    *aI *= nu_p;
+    //*aI *= nu_p;
     *aQ *= nu_p;
     *aV *= nu_p;
 
@@ -634,7 +634,7 @@ void stokes_to_f(double complex f_u[], double complex f_tetrad_u[],
 }
 
 void pol_integration_step(struct GRMHD modvar, double frequency,
-                          double *dl_current, double C, double X_u[],
+                          double *dl_current0, double C, double X_u[],
                           double k_u[], double k_d[], int *POLARIZATION_ACTIVE,
                           double complex f_u[], double complex f_tetrad_u[],
                           double tetrad_d[][4], double tetrad_u[][4],
@@ -643,7 +643,12 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
 
     double jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV;
     double pitch_ang, nu_p;
-    double k_u_old[4];
+    double k_u_old[4],X_u_old[4];
+    struct GRMHD modvar_local = modvar;
+	const double AI_FLOOR = 1e-200;
+	double affine_scale=(ELECTRON_MASS*SPEED_OF_LIGHT*SPEED_OF_LIGHT)/(PLANCK_CONSTANT*frequency);
+
+	double optical_dl=0.,dl_current;
     // Unpolarized: 1) Create light path by integration. 2) For each
     // step in lightpath, perform one radiative transfer step.
     // Polarized:   1) Create light path by integration. 2) For each
@@ -654,7 +659,7 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
     ////////////////
 
     // Obtain pitch angle: still no units (geometric)
-    pitch_ang = pitch_angle(X_u, k_u, modvar.B_u, modvar.U_u);
+    pitch_ang = pitch_angle(X_u, k_u, modvar_local.B_u, modvar_local.U_u);
 
     // perfect field alignment, no emission
     if (fmod(pitch_ang, M_PI) == 0)
@@ -662,121 +667,226 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
 
     // CGS UNITS USED FROM HERE ON OUT
     //////////////////////////////////
-    LOOP_i k_u_old[i] = k_u[i];
+    LOOP_i {
+        k_u_old[i] = k_u[i];
+        X_u_old[i] = X_u[i];
+    }
+
     // Scale the wave vector to correct energy
     LOOP_i k_u[i] *= PLANCK_CONSTANT * frequency /
                      (ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT);
 
     // Convert distance dlambda accordingly
-    *dl_current *= (ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT) /
-                   (PLANCK_CONSTANT * frequency);
+    *dl_current0 *= affine_scale ;
     double scale = L_unit * PLANCK_CONSTANT /
                (ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT);
     // lower the index of the wavevector
     lower_index(X_u, k_u, k_d);
 
     // Compute the photon frequency in the plasma frame:
-    nu_p = freq_in_plasma_frame(modvar.U_u, k_d);
+    nu_p = freq_in_plasma_frame(modvar_local.U_u, k_d);
 
-    // POLARIZED EMISSION/ABSORPTION COEFFS
-    ///////////////////////////////////////
-    // evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI, &aQ, &aU,
-    //                        &aV, nu_p, modvar, pitch_ang);
-    #if (EMISUSER)
-        evaluate_coeffs_user(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
-                                     &aQ, &aU, &aV, nu_p, modvar, pitch_ang);
-    #else
-        evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
-                                       &aQ, &aU, &aV, nu_p, modvar, pitch_ang);
-    #endif
-    // Create tetrad, needed whether POLARIZATION_ACTIVE is true or
-    // false.
-    create_observer_tetrad(X_u, k_u, modvar.U_u, modvar.B_u, tetrad_u);
-    create_tetrad_d(X_u, tetrad_u, tetrad_d);
 
-    // FROM F VECTOR TO STOKES (when applicable)
-    ////////////////////////////////////////////
+	//adaptive optical depth stepsize
+	aI=(a_I(modvar_local.theta_e, modvar_local.n_e, nu_p, modvar_local.B, pitch_ang, modvar_local.beta, modvar_local.sigma));
+	aI *= nu_p;
+	if (!isfinite(aI) || aI < AI_FLOOR) {
+		aI = AI_FLOOR;
+	}
+	optical_dl=OPTICAL_LIM/aI;
 
-    // If (POLARIZATION_ACTIVE), get Stokes params from f_u and p.
-    // (Otherwise, never been in volume before; we simply use
-    // S_I_current)
-    if (*POLARIZATION_ACTIVE) {
-        f_to_stokes(f_u, f_tetrad_u, tetrad_d, S_A, *Iinv, *Iinv_pol);
-    }
-    // Given Stokes params and plasma coeffs, compute NEW Stokes params
-    // after plasma step.
+	if (optical_dl>*dl_current0){
+	    dl_current=*dl_current0;
+        // POLARIZED EMISSION/ABSORPTION COEFFS
+        ///////////////////////////////////////
+        // evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI, &aQ, &aU,
+        //                        &aV, nu_p, modvar_local, pitch_ang);
+        #if (EMISUSER)
+            evaluate_coeffs_user(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                                         &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+        #else
+            evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                                           &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+        #endif
+        // Create tetrad, needed whether POLARIZATION_ACTIVE is true or
+        // false.
+        create_observer_tetrad(X_u, k_u, modvar_local.U_u, modvar_local.B_u, tetrad_u);
+        create_tetrad_d(X_u, tetrad_u, tetrad_d);
 
-    int STIFF = check_stiffness(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
-                                *dl_current);
+        // FROM F VECTOR TO STOKES (when applicable)
+        ////////////////////////////////////////////
 
-    // If both rotation coeffs (times dlambda) are smaller than
-    // threshold, take an RK4 step; otherwise, implicit Euler.
-    // if (fabs(rQ) < THRESH && fabs(rV) < THRESH) {
-    if (!STIFF) {
-        pol_rte_rk4_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
-                         *dl_current, C, S_A);
-    } else {
-        pol_rte_trapezoid_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
-                               *dl_current, C, S_A);
-    }
-    // FROM STOKES TO F VECTOR
-    ///////////////////////////
-    // somtimes in very specific cells issue with Ipol>S_I, numerical round off
-    // issues? renormalizing.
-    double pol_frac =
-        sqrt(S_A[1] * S_A[1] + S_A[2] * S_A[2] + S_A[3] * S_A[3]) /
-        sqrt(S_A[0] * S_A[0]);
+        // If (POLARIZATION_ACTIVE), get Stokes params from f_u and p.
+        // (Otherwise, never been in volume before; we simply use
+        // S_I_current)
+        if (*POLARIZATION_ACTIVE) {
+            f_to_stokes(f_u, f_tetrad_u, tetrad_d, S_A, *Iinv, *Iinv_pol);
+        }
+        // Given Stokes params and plasma coeffs, compute NEW Stokes params
+        // after plasma step.
 
-    if (pol_frac > 1.) {
-        //         fprintf(stderr,"unphysical in pol step, skipping step. %e %e
-        //         %e\n", sqrt(S_A[0]*S_A[0]), sqrt(S_A[1] * S_A[1] + S_A[2] *
-        //         S_A[2] +
-        //       S_A[3] * S_A[3]),four_velocity_norm(X_u,k_u_old));
-        S_A[1] /= (pol_frac + 0.005);
-        S_A[2] /= (pol_frac + 0.005);
-        S_A[3] /= (pol_frac + 0.005);
 
-        //	return;
-    }
+        int STIFF = check_stiffness(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
+                                    dl_current);
 
-    *Iinv = S_A[0];
-    *Iinv_pol = sqrt(S_A[1] * S_A[1] + S_A[2] * S_A[2] + S_A[3] * S_A[3]);
-    /*
-            fprintf(stderr,"r %e te %e th %e nu
-       %e\n",exp(X_u[1]),modvar.theta_e,pitch_ang,nu_p); fprintf(stderr,"B %e %e
-       %e %e\n",modvar.B_u[0],modvar.B_u[1],modvar.B_u[2],modvar.B_u[3]);
-            fprintf(stderr,"U %e %e %e
-       %e\n",modvar.U_u[0],modvar.U_u[1],modvar.U_u[2],modvar.U_u[3]);
-               fprintf(stderr,"k %e %e %e %e\n",k_u[0],k_u[1],k_u[2],k_u[3]);
-               fprintf(stderr,"Iinv %e Iinv_pol %e\n",*Iinv,*Iinv_pol);
-               fprintf(stderr,"jI %e jQ %e jU %e jV %e\n",jI,jQ,jU,jV);
-               fprintf(stderr,"aI %e aQ %e aU %e aV %e\n",aI,aQ,aU,aV);
-               fprintf(stderr,"rQ %e rU %e rV %e\n",rQ,rU,rV);
+        // If both rotation coeffs (times dlambda) are smaller than
+        // threshold, take an RK4 step; otherwise, implicit Euler.
+        // if (fabs(rQ) < THRESH && fabs(rV) < THRESH) {
+        if (!STIFF) {
+            pol_rte_rk4_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
+                             dl_current, C, S_A);
+        } else {
+            pol_rte_trapezoid_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
+                                   dl_current, C, S_A);
+        }
 
-            if(isnan(sqrt(S_A[0]*S_A[0])))
-                    exit(1);
-    */
-    //        check_tetrad_identities(X_u, tetrad_u);
-    //        check_tetrad_compact(X_u, tetrad_u);
+        // FROM STOKES TO F VECTOR
+        ///////////////////////////
+        // somtimes in very specific cells issue with Ipol>S_I, numerical round off
+        // issues? renormalizing.
+        double pol_frac =
+            sqrt(S_A[1] * S_A[1] + S_A[2] * S_A[2] + S_A[3] * S_A[3]) /
+            sqrt(S_A[0] * S_A[0]);
 
-    // We have now updated the Stokes vector using plasma at current
-    // position. Only do stuff below this line IF S_A[0] > 1.e-40. If
-    // not, POLARIZATION_ACTIVE is set to FALSE and we reset S_A[i] = 0
-    if (*Iinv_pol > 1.e-100) {
-        stokes_to_f(f_u, f_tetrad_u, tetrad_u, S_A, Iinv, Iinv_pol);
-        *tau += aI * (*dl_current) * scale;
-        *tauF += fabs(rV) * (*dl_current) * scale;
+        if (pol_frac > 1.) {
+            S_A[1] /= (pol_frac + 0.005);
+            S_A[2] /= (pol_frac + 0.005);
+            S_A[3] /= (pol_frac + 0.005);
 
-        // Set POLARIZATION_ACTIVE to true; we are, after all,
-        // in_volume.
-        *POLARIZATION_ACTIVE = 1;
+            //	return;
+        }
 
-    } else {
-        *POLARIZATION_ACTIVE = 0;
-        S_A[1] = 0.;
-        S_A[2] = 0.;
-        S_A[3] = 0.;
-    }
+        *Iinv = S_A[0];
+        *Iinv_pol = sqrt(S_A[1] * S_A[1] + S_A[2] * S_A[2] + S_A[3] * S_A[3]);
+
+        // We have now updated the Stokes vector using plasma at current
+        // position. Only do stuff below this line IF S_A[0] > 1.e-40. If
+        // not, POLARIZATION_ACTIVE is set to FALSE and we reset S_A[i] = 0
+        if (*Iinv_pol > 1.e-100) {
+            stokes_to_f(f_u, f_tetrad_u, tetrad_u, S_A, Iinv, Iinv_pol);
+            *tau += aI * (dl_current) * scale;
+            *tauF += fabs(rV) * (dl_current) * scale;
+
+            // Set POLARIZATION_ACTIVE to true; we are, after all,
+            // in_volume.
+            *POLARIZATION_ACTIVE = 1;
+
+        } else {
+            *POLARIZATION_ACTIVE = 0;
+            S_A[1] = 0.;
+            S_A[2] = 0.;
+            S_A[3] = 0.;
+        }
+	}
+    //enable adaptive optical depth stepsize
+	else {
+        //printf("[Adaptive optical depth stepsize] x1=%.4g x2=%.4g x3=%.4g tau=%.2g\n",
+        //        X_u[1],X_u[2],X_u[3],aI*(*dl_current0));
+
+        double dl_remain=*dl_current0;
+        while(dl_remain > 0.){
+            dl_current = MIN(dl_remain, optical_dl);
+            //printf("dl_remain=%.4e dl_current=%.4e optical_dl=%.4e aI=%.4e\n",
+            //       dl_remain,dl_current,optical_dl,aI);
+
+
+            #if (EMISUSER)
+            evaluate_coeffs_user(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                                 &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+            #else
+            evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                                   &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+            #endif
+            // Create tetrad, needed whether POLARIZATION_ACTIVE is true or
+            // false.
+            create_observer_tetrad(X_u, k_u, modvar_local.U_u, modvar_local.B_u, tetrad_u);
+            create_tetrad_d(X_u, tetrad_u, tetrad_d);
+
+            // FROM F VECTOR TO STOKES (when applicable)
+            ////////////////////////////////////////////
+
+            // If (POLARIZATION_ACTIVE), get Stokes params from f_u and p.
+            // (Otherwise, never been in volume before; we simply use
+            // S_I_current)
+            if (*POLARIZATION_ACTIVE) {
+                f_to_stokes(f_u, f_tetrad_u, tetrad_d, S_A, *Iinv, *Iinv_pol);
+            }
+            // Given Stokes params and plasma coeffs, compute NEW Stokes params
+            // after plasma step.
+
+
+            int STIFF = check_stiffness(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
+                                        dl_current);
+
+            // If both rotation coeffs (times dlambda) are smaller than
+            // threshold, take an RK4 step; otherwise, implicit Euler.
+            // if (fabs(rQ) < THRESH && fabs(rV) < THRESH) {
+            if (!STIFF) {
+                pol_rte_rk4_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
+                                 dl_current, C, S_A);
+            } else {
+                pol_rte_trapezoid_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
+                                       dl_current, C, S_A);
+            }
+
+            // FROM STOKES TO F VECTOR
+            ///////////////////////////
+            // somtimes in very specific cells issue with Ipol>S_I, numerical round off
+            // issues? renormalizing.
+            double pol_frac =
+                sqrt(S_A[1] * S_A[1] + S_A[2] * S_A[2] + S_A[3] * S_A[3]) /
+                sqrt(S_A[0] * S_A[0]);
+
+            if (pol_frac > 1.) {
+                S_A[1] /= (pol_frac + 0.005);
+                S_A[2] /= (pol_frac + 0.005);
+                S_A[3] /= (pol_frac + 0.005);
+
+                //	return;
+            }
+
+            *Iinv = S_A[0];
+            *Iinv_pol = sqrt(S_A[1] * S_A[1] + S_A[2] * S_A[2] + S_A[3] * S_A[3]);
+
+            // We have now updated the Stokes vector using plasma at current
+            // position. Only do stuff below this line IF S_A[0] > 1.e-40. If
+            // not, POLARIZATION_ACTIVE is set to FALSE and we reset S_A[i] = 0
+            if (*Iinv_pol > 1.e-100) {
+                stokes_to_f(f_u, f_tetrad_u, tetrad_u, S_A, Iinv, Iinv_pol);
+                *tau += aI * (dl_current) * scale;
+                *tauF += fabs(rV) * (dl_current) * scale;
+
+                // Set POLARIZATION_ACTIVE to true; we are, after all,
+                // in_volume.
+                *POLARIZATION_ACTIVE = 1;
+
+            } else {
+                *POLARIZATION_ACTIVE = 0;
+                S_A[1] = 0.;
+                S_A[2] = 0.;
+                S_A[3] = 0.;
+            }
+
+
+            //update location & optical depth
+            LOOP_i X_u[i]+=k_u_old[i]*(dl_current/affine_scale);
+            get_fluid_params(X_u, &modvar_local);
+
+            pitch_ang = pitch_angle(X_u, k_u_old, modvar_local.B_u, modvar_local.U_u);
+            lower_index(X_u, k_u, k_d);
+            // Compute the photon frequency in the plasma frame:
+            nu_p = freq_in_plasma_frame(modvar_local.U_u, k_d);
+
+            aI=(a_I(modvar_local.theta_e, modvar_local.n_e, nu_p, modvar_local.B, pitch_ang, modvar_local.beta, modvar_local.sigma));
+            aI *= nu_p;
+				if (!isfinite(aI) || aI < AI_FLOOR) {
+				aI = AI_FLOOR;
+			}
+            optical_dl=OPTICAL_LIM/aI;
+            dl_remain -= dl_current;
+        }
+     LOOP_i X_u[i]=X_u_old[i];
+	}
 }
 
 void construct_f_obs_tetrad_u(double *X_u, double *k_u, double complex *f_u,
