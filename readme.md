@@ -22,6 +22,8 @@ The other features are listed below:
 
 (7) The plotting package `rapplot.py` is reconstructed with Python class. It is easier to use. 
 
+(8) Adaptive stepsize depends on optical depth to guarantee numerical stability in low frequency(~GHz).
+
 ## Quick Start 
 
 ### Dependence
@@ -168,5 +170,6 @@ In `model.c/init_model()`, you can choice the other initial function for followi
 
 
 Xufan Hu （胡旭凡） tie@mail.ustc.edu.cn 
+
 
 
