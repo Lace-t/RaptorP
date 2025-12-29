@@ -19,23 +19,26 @@ class Raptor(object):
     Raptor class is a reconsitution of rapplot.py
     Initialization
     --------------
-    M              : double
-                     Mass of black hole(unit: Msun)
-    d              : double
-                     distance(unit:kpc)
-    name           : str
-                     number of datafile
-    root(optional) : str
-                     location of datafile
-                     (default: output)
-    unit(optional) : mas or rg
-                     unit of coordinate in figure, 
-                     (default: mas)
+    M                : double
+                       Mass of black hole(unit: Msun)
+    d                : double
+                       distance(unit:kpc)
+    name             : str
+                       number of datafilefault
+    offset(optional) : double
+                       offset on Y coordinate
+                       (default:0)
+    root(optional)   : str
+                       location of datafile
+                       (default:none)
+    unit(optional)   : 'mas' or 'rg'
+                       unit of plot
+                       (default:mas)
     --------------        
     Written by Xufan Hu 2024.11.30
     >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     '''
-    def __init__(self,M,d,name,root='output',unit='mas'):
+    def __init__(self,M,d,name,offset=0,root='',unit='mas'):
         #reading .h5 file
         self.__name=root+'/'+name
         print("Reading keys from: ",self.__name)
@@ -53,6 +56,7 @@ class Raptor(object):
         #calculate the scale
         self.__M=M*MSUN
         self.__d=d*KPC
+        self.__offset=offset
         self.rg=G*self.__M/SPEED_OF_LIGHT**2#show it by Raptor.rg
         self.__unit=unit
         if self.__unit=='mas':
@@ -173,7 +177,7 @@ class Raptor(object):
                 self.__pixels=int(np.sqrt(len(self.__data[self.__keys[index]][i])))
                 array=((np.reshape(self.__data[self.__keys[index]][i],(self.__pixels,self.__pixels))))
                 alpha=((np.reshape(self.__data['alpha'][i],(self.__pixels,self.__pixels))))*self.mas
-                beta=((np.reshape(self.__data['beta'][i],(self.__pixels,self.__pixels))))*self.mas
+                beta=(((np.reshape(self.__data['beta'][i],(self.__pixels,self.__pixels))))+self.__offset)*self.mas
                 
                 #ax.set_aspect('equal')                
                 figure=ax.pcolormesh(alpha,beta,np.log10(array+1),vmin=np.log10(vmin+1),
@@ -183,7 +187,7 @@ class Raptor(object):
                 pixels=int(np.sqrt(len(self.__data[self.__keys[index]][i])))
                 array=((np.reshape(self.__data[self.__keys[index]][i],(pixels,pixels))))
                 alpha=((np.reshape(self.__data['alpha'][i],(pixels,pixels))))*self.mas
-                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels))))*self.mas
+                beta=(((np.reshape(self.__data['beta'][i],(pixels,pixels))))+self.__offset)*self.mas
                 
                 #ax.set_aspect('equal')
                 figure=ax.pcolormesh(alpha,beta,array,vmin=vmin,vmax=vmax,cmap=cmap,shading='auto')
@@ -193,7 +197,7 @@ class Raptor(object):
         fig.colorbar(figure,label=label,ax=ax)
         if size!=None:
             ax.set_xlim(size[0][0]*self.mas,size[0][1]*self.mas)
-            ax.set_ylim(size[1][0]*self.mas,size[1][1]*self.mas)
+            ax.set_ylim((size[1][0]+self.__offset)*self.mas,(size[1][1]+self.__offset)*self.mas)
         #define scientific notation
         formatter = ticker.ScalarFormatter(useMathText=True)
         formatter.set_scientific(True) 
@@ -262,7 +266,7 @@ class Raptor(object):
                 array = np.sqrt(np.power(array_Q,2)+np.power(array_U,2))
                 
                 alpha=((np.reshape(self.__data['alpha'][i],(pixels,pixels))))*self.mas
-                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels))))*self.mas
+                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels)))+self.__offset)*self.mas
                 
                 #ax.set_aspect('equal')
                 figure=ax.pcolormesh(alpha,beta,np.log10(array+1e-40),vmin=np.log10(vmin+1e-40),
@@ -275,7 +279,7 @@ class Raptor(object):
                 array = np.sqrt(np.power(array_Q,2)+np.power(array_U,2))
                 
                 alpha=((np.reshape(self.__data['alpha'][i],(pixels,pixels))))*self.mas
-                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels))))*self.mas
+                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels)))+self.__offset)*self.mas
                 
                 #ax.set_aspect('equal')
                 figure=ax.pcolormesh(alpha,beta,array,vmin=0,vmax=vmax,cmap=cmap,shading='auto')
@@ -283,7 +287,7 @@ class Raptor(object):
         fig.colorbar(figure,label='Linear Pol (%.2eGHz)'%freq,ax=ax)
         if size!=None:
             ax.set_xlim(size[0][0]*self.mas,size[0][1]*self.mas)
-            ax.set_ylim(size[1][0]*self.mas,size[1][1]*self.mas)
+            ax.set_ylim((size[1][0]+self.__offset)*self.mas,(size[1][1]+self.__offset)*self.mas)
         #define scientific notation
         formatter = ticker.ScalarFormatter(useMathText=True)
         formatter.set_scientific(True) 
@@ -345,7 +349,7 @@ class Raptor(object):
             array[array_I/vmax<1e-7]=0
             
             alpha=((np.reshape(self.__data['alpha'][i],(pixels,pixels))))*self.mas
-            beta=((np.reshape(self.__data['beta'][i],(pixels,pixels))))*self.mas
+            beta=((np.reshape(self.__data['beta'][i],(pixels,pixels)))+self.__offset)*self.mas
             
             #ax.set_aspect('equal')
             figure=ax.pcolormesh(alpha,beta,array,vmin=0,vmax=1,cmap=cmap,shading='auto')
@@ -353,7 +357,7 @@ class Raptor(object):
         fig.colorbar(figure,label=label+'(%.2eGHz)'%freq,ax=ax)
         if size!=None:
             ax.set_xlim(size[0][0]*self.mas,size[0][1]*self.mas)
-            ax.set_ylim(size[1][0]*self.mas,size[1][1]*self.mas)
+            ax.set_ylim((size[1][0]+self.__offset)*self.mas,(size[1][1]+self.__offset)*self.mas)
         #define scientific notation
         formatter = ticker.ScalarFormatter(useMathText=True)
         formatter.set_scientific(True) 
@@ -447,7 +451,7 @@ class Raptor(object):
                 Q=((np.reshape(self.__data[self.__keys[index+len(self.__freq)]][i],(pixels,pixels))))
                 U=((np.reshape(self.__data[self.__keys[index+2*len(self.__freq)]][i],(pixels,pixels))))
                 alpha=((np.reshape(self.__data['alpha'][i],(pixels,pixels))))*self.mas
-                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels))))*self.mas
+                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels)))+self.__offset)*self.mas
                 #calculate EVPA
                 evpa = (180/np.pi)*0.5*np.arctan2(U,Q+1e-40)
                 evpa[evpa>90]-=180            
@@ -469,7 +473,7 @@ class Raptor(object):
                 Q=((np.reshape(self.__data[self.__keys[index+len(self.__freq)]][i],(pixels,pixels))))
                 U=((np.reshape(self.__data[self.__keys[index+2*len(self.__freq)]][i],(pixels,pixels))))
                 alpha=((np.reshape(self.__data['alpha'][i],(pixels,pixels))))*self.mas
-                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels))))*self.mas
+                beta=((np.reshape(self.__data['beta'][i],(pixels,pixels)))+self.__offset)*self.mas
                 #calculate EVPA
                 evpa = (180/np.pi)*0.5*np.arctan2(U,Q+1e-40)
                 evpa[evpa>90]-=180            
@@ -489,7 +493,7 @@ class Raptor(object):
         
         if size!=None:
             ax.set_xlim(size[0][0]*self.mas,size[0][1]*self.mas)
-            ax.set_ylim(size[1][0]*self.mas,size[1][1]*self.mas)
+            ax.set_ylim((size[1][0]+self.__offset)*self.mas,(size[1][1]+self.__offset)*self.mas)
         #define scientific notation
         formatter = ticker.ScalarFormatter(useMathText=True)
         formatter.set_scientific(True) 
