@@ -209,125 +209,6 @@ void f_to_f_tetrad(double complex *f_tetrad_u, double tetrad_d[][4],
     LOOP_ij f_tetrad_u[i] += tetrad_d[j][i] * f_u[j];
 }
 
-// void evaluate_coeffs_user(double *jI, double *jQ, double *jU, double *jV,
-//                           double *rQ, double *rU, double *rV, double *aI,
-//                           double *aQ, double *aU, double *aV, double nu_p,
-//                           struct GRMHD modvar, double pitch_ang) {
-
-//     double jI_thermal = 0.0, jQ_thermal = 0.0, jV_thermal = 0.0;
-//     double jI_kappa = 0.0, jQ_kappa = 0.0, jV_kappa = 0.0;
-
-//     double aI_kappa = 0.0, aV_kappa = 0.0, aQ_kappa = 0.0;
-//     double aI_thermal = 0.0, aV_thermal = 0.0, aQ_thermal = 0.0;
-
-//     double rV_kappa = 0.0, rQ_kappa = 0.0;
-//     double rV_thermal = 0.0, rQ_thermal = 0.0;
-
-
-//     double eps, epsilon;
-
-//     jI_thermal =
-//         j_I_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang);
-//     jV_thermal =
-//         j_V_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang);
-//     jQ_thermal =
-//         j_Q_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang);
-
-//     aI_thermal = a_I_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B,
-//                              pitch_ang, jI_thermal);
-//     aV_thermal = a_V_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B,
-//                              pitch_ang, jV_thermal);
-//     aQ_thermal = a_Q_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B,
-//                              pitch_ang, jQ_thermal);
-
-//     if (DF == KAPPA || DF == VAR_KAPPA){
-//         jI_kappa = j_I_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-//         jV_kappa = j_V_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-//         jQ_kappa = j_Q_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-
-//         aI_kappa = a_I_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-//         aV_kappa = a_V_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-//         aQ_kappa = a_Q_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-
-//         rV_kappa =
-//             rho_V_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-//         rQ_kappa =
-//             rho_Q_kappa(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
-//         rV_thermal =
-//             rho_V_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang);
-//         rQ_thermal =
-//             rho_Q_thermal(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang);
-//     }
-
-//     // to invariant forms...
-//     jI_thermal /= (nu_p * nu_p);
-//     jV_thermal /= (nu_p * nu_p);
-//     jQ_thermal /= (nu_p * nu_p);
-
-//     aI_thermal *= nu_p;
-//     aV_thermal *= nu_p;
-//     aQ_thermal *= nu_p;
-
-//     jI_kappa /= (nu_p * nu_p);
-//     jV_kappa /= (nu_p * nu_p);
-//     jQ_kappa /= (nu_p * nu_p);
-
-//     aI_kappa *= nu_p;
-//     aV_kappa *= nu_p;
-//     aQ_kappa *= nu_p;
-
-//     rQ_kappa *= nu_p;
-//     rV_kappa *= nu_p;
-//     rQ_thermal *= nu_p;
-//     rV_thermal *= nu_p;
-
-//     double eff;
-
-//     if ((modvar.sigma > 0.01) && modvar.beta < 1. / 4. * modvar.sigma)
-//     {
-//     double e0 = 1.;
-//     double e1 = - 0.23;
-//     double e2 = 0.5;
-//     double e3 = - 10.18;
-//     eff = e0 + e1/sqrt(modvar.sigma) + e2*pow(modvar.sigma,(1.0/10.0))*tanh(e3*modvar.beta*pow(modvar.sigma,(1.0/10.0)));
-//     }
-//     else{
-//         eff = 0.;
-//     }
-//     if (eff > 1.)
-//     {
-//         eff = 1.;
-//     }
-//     if (eff < 0.){
-//         eff = 0.;
-//     }
-
-//     eps = eff*0.;
-
-//     *jI = (1. - eps) * jI_thermal + eps * jI_kappa;
-//     *jV = (1. - eps) * jV_thermal + eps * jV_kappa;
-//     *jU = 0.0;
-//     *jQ = (1. - eps) * jQ_thermal + eps * jQ_kappa;
-
-//     *aV = (1. - eps) * aV_thermal + eps * aV_kappa;
-//     *aQ = (1. - eps) * aQ_thermal + eps * aQ_kappa;
-//     *aU = 0.0;
-//     *aI = (1. - eps) * aI_thermal + eps * aI_kappa;
-
-//     *rV = (1. - eps) * rV_thermal + eps * rV_kappa;
-//     *rU = 0.;
-//     *rQ = (1. - eps) * rQ_thermal + eps * rQ_kappa;
-
-//     if ((*jI != *jI || isnan(*jI))) {
-//         fprintf(stderr, "issue in user emis:\n");
-//         fprintf(stderr, "jI %e jkappa %e jth %e\n", *jI, jI_kappa, jI_thermal);
-//         fprintf(stderr, " eps %e beta %e sigma %e sigma min %e\n", eps,
-//                 modvar.beta, modvar.sigma, modvar.sigma_min);
-//         fprintf(stderr, "te %e ne %e nu_p %e B %e pitch %e\n", modvar.theta_e,
-//                 modvar.n_e, nu_p, modvar.B, pitch_ang);
-//         exit(1);
-//     }
-// }
 
 void evaluate_coeffs_user(double *jI, double *jQ, double *jU, double *jV,
                             double *rQ, double *rU, double *rV, double *aI,
@@ -393,7 +274,7 @@ void evaluate_coeffs_single(double *jI, double *jQ, double *jU, double *jV,
     *rU = 0.;
     *rV = rho_V(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma);
 
-    //*aI = (a_I(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
+    *aI = (a_I(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
     *aQ = (a_Q(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
     *aU = 0;
     *aV = (a_V(modvar.theta_e, modvar.n_e, nu_p, modvar.B, pitch_ang, modvar.beta, modvar.sigma));
@@ -403,7 +284,7 @@ void evaluate_coeffs_single(double *jI, double *jQ, double *jU, double *jV,
     *jQ /= (nu_p * nu_p);
     *jV /= (nu_p * nu_p);
 
-    //*aI *= nu_p;
+    *aI *= nu_p;
     *aQ *= nu_p;
     *aV *= nu_p;
 
@@ -430,53 +311,35 @@ void evaluate_coeffs_single(double *jI, double *jQ, double *jU, double *jV,
         }
     */
 }
-int check_stiffness(double jI, double jQ, double jU, double jV, double rQ,
-                    double rU, double rV, double aI, double aQ, double aU,
-                    double aV, double dl_current) {
-    // int STIFF = check_stiffness...
-    double a2 = rQ * rQ + rV * rV - aQ * aQ - aV * aV;
-    double a0 = -2. * aV * aQ * rV * rQ - aQ * aQ * rQ * rQ - aV * aV * rV * rV;
 
-    complex double zplus = (-a2 + sqrt(a2 * a2 - 4. * a0)) / 2.;
-    complex double zminus = (-a2 - sqrt(a2 * a2 - 4. * a0)) / 2.;
+double check_stiffness(double jI, double jQ, double jU, double jV,
+                       double rQ, double rU, double rV,
+                       double aI, double aQ, double aU, double aV,
+                       double C) {
+    double a2 = rQ*rQ + rV*rV - aQ*aQ - aV*aV;
+    double a0 = -2.*aV*aQ*rV*rQ - aQ*aQ*rQ*rQ - aV*aV*rV*rV;
 
-    complex double l1 = aI + sqrt(zplus);
-    complex double l2 = aI - sqrt(zplus);
-    complex double l3 = aI + sqrt(zminus);
-    complex double l4 = aI - sqrt(zminus);
+    complex double zplus  = (-a2 + csqrt(a2*a2 - 4.*a0)) / 2.;
+    complex double zminus = (-a2 - csqrt(a2*a2 - 4.*a0)) / 2.;
 
-    complex double tau1 = dl_current * l1;
-    complex double tau2 = dl_current * l2;
-    complex double tau3 = dl_current * l3;
-    complex double tau4 = dl_current * l4;
+    complex double l[4];
+    l[0] = aI + csqrt(zplus);
+    l[1] = aI - csqrt(zplus);
+    l[2] = aI + csqrt(zminus);
+    l[3] = aI - csqrt(zminus);
 
-    complex double mag1 = 1. + tau1 + 0.5 * tau1 * tau1 +
-                          1. / 6. * tau1 * tau1 * tau1 +
-                          1. / 24. * tau1 * tau1 * tau1 * tau1;
-    complex double mag2 = 1. + tau2 + 0.5 * tau2 * tau2 +
-                          1. / 6. * tau2 * tau2 * tau2 +
-                          1. / 24. * tau2 * tau2 * tau2 * tau2;
-    complex double mag3 = 1. + tau3 + 0.5 * tau3 * tau3 +
-                          1. / 6. * tau3 * tau3 * tau3 +
-                          1. / 24. * tau3 * tau3 * tau3 * tau3;
-    complex double mag4 = 1. + tau4 + 0.5 * tau4 * tau4 +
-                          1. / 6. * tau4 * tau4 * tau4 +
-                          1. / 24. * tau4 * tau4 * tau4 * tau4;
+    double max_rate = 0.0;
 
-    double res1 = sqrt(mag1 * conj(mag1));
-    double res2 = sqrt(mag2 * conj(mag2));
-    double res3 = sqrt(mag3 * conj(mag3));
-    double res4 = sqrt(mag4 * conj(mag4));
+    for (int i = 0; i < 4; ++i) {
+        double rate = cabs(l[i]);   // |λ_i|
+        if (rate > max_rate)
+            max_rate = rate;
+    }
 
-    int STIFF = 0;
+    if (max_rate <= 0.0)
+        return 1e40;   // effectively unlimited
 
-    double STIFFTHRESH = 0.99;
-
-    if (res1 > STIFFTHRESH || res2 > STIFFTHRESH || res3 > STIFFTHRESH ||
-        res4 > STIFFTHRESH)
-        STIFF = 1;
-
-    return STIFF;
+    return EPS_RTE / (C * max_rate);
 }
 
 void pol_rte_rk4_step(double jI, double jQ, double jU, double jV, double rQ,
@@ -616,6 +479,34 @@ void pol_rte_trapezoid_step(double jI, double jQ, double jU, double jV,
     S_A[3] = x4;
 }
 
+void pol_rte_euler_step(double jI, double jQ, double jU, double jV,
+                        double rQ, double rU, double rV,
+                        double aI, double aQ, double aU, double aV,
+                        double dl_current, double C,
+                        double complex S_A[]){
+    double complex I0 = S_A[0];
+    double complex Q0 = S_A[1];
+    double complex U0 = S_A[2];
+    double complex V0 = S_A[3];
+
+    double complex dI =
+        C * ( jI - (aI * I0 + aQ * Q0 + aU * U0 + aV * V0) );
+
+    double complex dQ =
+        C * ( jQ - (aQ * I0 + aI * Q0 + rV * U0 - rU * V0) );
+
+    double complex dU =
+        C * ( jU - (aU * I0 - rV * Q0 + aI * U0 + rQ * V0) );
+
+    double complex dV =
+        C * ( jV - (aV * I0 + rU * Q0 - rQ * U0 + aI * V0) );
+
+    S_A[0] = I0 + dl_current * dI;
+    S_A[1] = Q0 + dl_current * dQ;
+    S_A[2] = U0 + dl_current * dU;
+    S_A[3] = V0 + dl_current * dV;
+}
+
 void f_to_stokes(double complex f_u[], double complex f_tetrad_u[],
                  double tetrad_d[][4], double complex S_A[], double Iinv,
                  double Iinv_pol) {
@@ -645,10 +536,9 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
     double pitch_ang, nu_p;
     double k_u_old[4],X_u_old[4];
     struct GRMHD modvar_local = modvar;
-	const double AI_FLOOR = 1e-200;
-	double affine_scale=(ELECTRON_MASS*SPEED_OF_LIGHT*SPEED_OF_LIGHT)/(PLANCK_CONSTANT*frequency);
 
-	double optical_dl=0.,dl_current;
+	double affine_scale=(ELECTRON_MASS*SPEED_OF_LIGHT*SPEED_OF_LIGHT)/(PLANCK_CONSTANT*frequency);
+	double dl_opt=1e40,dl_current;
     // Unpolarized: 1) Create light path by integration. 2) For each
     // step in lightpath, perform one radiative transfer step.
     // Polarized:   1) Create light path by integration. 2) For each
@@ -678,8 +568,7 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
 
     // Convert distance dlambda accordingly
     *dl_current0 *= affine_scale ;
-    double scale = L_unit * PLANCK_CONSTANT /
-               (ELECTRON_MASS * SPEED_OF_LIGHT * SPEED_OF_LIGHT);
+
     // lower the index of the wavevector
     lower_index(X_u, k_u, k_d);
 
@@ -688,26 +577,18 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
 
 
 	//adaptive optical depth stepsize
-	aI=(a_I(modvar_local.theta_e, modvar_local.n_e, nu_p, modvar_local.B, pitch_ang, modvar_local.beta, modvar_local.sigma));
-	aI *= nu_p;
-	if (!isfinite(aI) || aI < AI_FLOOR) {
-		aI = AI_FLOOR;
-	}
-	optical_dl=OPTICAL_LIM/aI;
+	#if (EMISUSER)
+    evaluate_coeffs_user(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                         &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+    #else
+    evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                           &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+    #endif
+    dl_opt=check_stiffness(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV, C);
 
-	if (optical_dl>*dl_current0){
+	if (dl_opt>*dl_current0){
 	    dl_current=*dl_current0;
-        // POLARIZED EMISSION/ABSORPTION COEFFS
-        ///////////////////////////////////////
-        // evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI, &aQ, &aU,
-        //                        &aV, nu_p, modvar_local, pitch_ang);
-        #if (EMISUSER)
-            evaluate_coeffs_user(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
-                                         &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
-        #else
-            evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
-                                           &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
-        #endif
+
         // Create tetrad, needed whether POLARIZATION_ACTIVE is true or
         // false.
         create_observer_tetrad(X_u, k_u, modvar_local.U_u, modvar_local.B_u, tetrad_u);
@@ -725,14 +606,10 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
         // Given Stokes params and plasma coeffs, compute NEW Stokes params
         // after plasma step.
 
-
-        int STIFF = check_stiffness(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
-                                    dl_current);
-
         // If both rotation coeffs (times dlambda) are smaller than
         // threshold, take an RK4 step; otherwise, implicit Euler.
         // if (fabs(rQ) < THRESH && fabs(rV) < THRESH) {
-        if (!STIFF) {
+        if (*dl_current0<0.5*dl_opt) {
             pol_rte_rk4_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
                              dl_current, C, S_A);
         } else {
@@ -764,8 +641,8 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
         // not, POLARIZATION_ACTIVE is set to FALSE and we reset S_A[i] = 0
         if (*Iinv_pol > 1.e-100) {
             stokes_to_f(f_u, f_tetrad_u, tetrad_u, S_A, Iinv, Iinv_pol);
-            *tau += aI * (dl_current) * scale;
-            *tauF += fabs(rV) * (dl_current) * scale;
+            *tau += aI * (dl_current) * C;
+            *tauF += fabs(rV) * (dl_current) * C;
 
             // Set POLARIZATION_ACTIVE to true; we are, after all,
             // in_volume.
@@ -778,25 +655,25 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
             S_A[3] = 0.;
         }
 	}
-    //enable adaptive optical depth stepsize
+    //enable adaptive optical depth stepsize which reduces the radiation transfer calculations
 	else {
-        //printf("[Adaptive optical depth stepsize] x1=%.4g x2=%.4g x3=%.4g tau=%.2g\n",
-        //        X_u[1],X_u[2],X_u[3],aI*(*dl_current0));
+          //printf("[Adaptive optical depth stepsize] x1=%.3g x2=%.3g x3=%.3g dl_current=%.2g dl_opt=%.2g\n",
+          //       X_u[1],X_u[2],X_u[3],*dl_current0,dl_opt);
 
         double dl_remain=*dl_current0;
+        double dl_mark=1.; // mark for updating radiation coefficients
+        int update_point=1;
+
         while(dl_remain > 0.){
-            dl_current = MIN(dl_remain, optical_dl);
-            //printf("dl_remain=%.4e dl_current=%.4e optical_dl=%.4e aI=%.4e\n",
-            //       dl_remain,dl_current,optical_dl,aI);
+            dl_current = MIN(dl_remain, dl_opt);
 
+            //check whether update radiation coefficients and fluid parameters
+            if (dl_mark>0. && dl_remain <= dl_mark * (*dl_current0)){
+                dl_mark-=0.1;
+                update_point=1;
+                }
+            else update_point=0;
 
-            #if (EMISUSER)
-            evaluate_coeffs_user(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
-                                 &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
-            #else
-            evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
-                                   &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
-            #endif
             // Create tetrad, needed whether POLARIZATION_ACTIVE is true or
             // false.
             create_observer_tetrad(X_u, k_u, modvar_local.U_u, modvar_local.B_u, tetrad_u);
@@ -814,20 +691,8 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
             // Given Stokes params and plasma coeffs, compute NEW Stokes params
             // after plasma step.
 
-
-            int STIFF = check_stiffness(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
-                                        dl_current);
-
-            // If both rotation coeffs (times dlambda) are smaller than
-            // threshold, take an RK4 step; otherwise, implicit Euler.
-            // if (fabs(rQ) < THRESH && fabs(rV) < THRESH) {
-            if (!STIFF) {
-                pol_rte_rk4_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
-                                 dl_current, C, S_A);
-            } else {
-                pol_rte_trapezoid_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
-                                       dl_current, C, S_A);
-            }
+            pol_rte_trapezoid_step(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV,
+                                   dl_current, C, S_A);
 
             // FROM STOKES TO F VECTOR
             ///////////////////////////
@@ -841,8 +706,6 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
                 S_A[1] /= (pol_frac + 0.005);
                 S_A[2] /= (pol_frac + 0.005);
                 S_A[3] /= (pol_frac + 0.005);
-
-                //	return;
             }
 
             *Iinv = S_A[0];
@@ -853,8 +716,8 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
             // not, POLARIZATION_ACTIVE is set to FALSE and we reset S_A[i] = 0
             if (*Iinv_pol > 1.e-100) {
                 stokes_to_f(f_u, f_tetrad_u, tetrad_u, S_A, Iinv, Iinv_pol);
-                *tau += aI * (dl_current) * scale;
-                *tauF += fabs(rV) * (dl_current) * scale;
+                *tau += aI * (dl_current) * C;
+                *tauF += fabs(rV) * (dl_current) * C;
 
                 // Set POLARIZATION_ACTIVE to true; we are, after all,
                 // in_volume.
@@ -867,22 +730,26 @@ void pol_integration_step(struct GRMHD modvar, double frequency,
                 S_A[3] = 0.;
             }
 
-
             //update location & optical depth
             LOOP_i X_u[i]+=k_u_old[i]*(dl_current/affine_scale);
-            get_fluid_params(X_u, &modvar_local);
 
-            pitch_ang = pitch_angle(X_u, k_u_old, modvar_local.B_u, modvar_local.U_u);
-            lower_index(X_u, k_u, k_d);
-            // Compute the photon frequency in the plasma frame:
-            nu_p = freq_in_plasma_frame(modvar_local.U_u, k_d);
+            if (update_point){
+                get_fluid_params(X_u, &modvar_local);
+                pitch_ang = pitch_angle(X_u, k_u_old, modvar_local.B_u, modvar_local.U_u);
+                lower_index(X_u, k_u, k_d);
+                // Compute the photon frequency in the plasma frame:
+                nu_p = freq_in_plasma_frame(modvar_local.U_u, k_d);
 
-            aI=(a_I(modvar_local.theta_e, modvar_local.n_e, nu_p, modvar_local.B, pitch_ang, modvar_local.beta, modvar_local.sigma));
-            aI *= nu_p;
-				if (!isfinite(aI) || aI < AI_FLOOR) {
-				aI = AI_FLOOR;
-			}
-            optical_dl=OPTICAL_LIM/aI;
+                #if (EMISUSER)
+                evaluate_coeffs_user(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                                     &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+                #else
+                evaluate_coeffs_single(&jI, &jQ, &jU, &jV, &rQ, &rU, &rV, &aI,
+                                       &aQ, &aU, &aV, nu_p, modvar_local, pitch_ang);
+                #endif
+
+                dl_opt=check_stiffness(jI, jQ, jU, jV, rQ, rU, rV, aI, aQ, aU, aV, C);
+            }
             dl_remain -= dl_current;
         }
      LOOP_i X_u[i]=X_u_old[i];

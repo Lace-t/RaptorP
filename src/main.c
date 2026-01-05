@@ -46,6 +46,8 @@
 #include "model_functions.h"
 #include "model_global_vars.h"
 
+int count=0;
+
 int main(int argc, char *argv[]) {
 
     // INPUT FILE
@@ -134,8 +136,8 @@ int main(int argc, char *argv[]) {
     int block = 0;
 
     while (block  < tot_blocks) { // block_total
-        if (block % (25) == 0)
-            fprintf(stderr, "block %d of total %d\n", block, tot_blocks);
+     //   if (block % (25) == 0)
+     //       fprintf(stderr, "block %d of total %d\n", block, tot_blocks);
 
         calculate_image_block(&intensityfield[block], frequencies);
 #if (AMR)

@@ -173,6 +173,7 @@ void calculate_image_block(struct Camera *intensityfield, double frequencies[num
                                              &(*intensityfield).tau[pixel][f],
                                              &(*intensityfield).tauF[pixel][f]);
             }
+			count++;
         #else
             radiative_transfer_unpolarized(lightpath2, steps, frequencies,
                                            (*intensityfield).IQUV[pixel],
@@ -181,6 +182,10 @@ void calculate_image_block(struct Camera *intensityfield, double frequencies[num
                 (*intensityfield).IQUV[pixel][f][0] *= pow(frequencies[f], 3.);
             }
         #endif
+			if (count%(tot_pixels*tot_blocks/100)==0){
+				printf("[ Progress ] : %d\% \r",count/(tot_pixels*tot_blocks/100));
+				fflush(stdout);
+			}
         } // end for pixel
     }// end parallel
 

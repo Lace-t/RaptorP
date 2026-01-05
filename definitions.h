@@ -91,7 +91,7 @@ typedef struct Camera {
 #define nth (1) //nonthermal: powerlaw
 #define Power_type (cooling)
 
-#define OPTICAL_LIM 8.e6//xf: limitation for adaptive optical depth
+#define EPS_RTE 1.//xf: limitation for adaptive optical depth
 
 #define DEXTER (0) // use Dexter fit for rho_V_thermal
 

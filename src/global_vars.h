@@ -32,6 +32,8 @@ extern int IMG_WIDTH, IMG_HEIGHT;
 extern double CAM_SIZE_X, CAM_SIZE_Y,SHIFT;
 extern double STEPSIZE,STEPSIZE_MAX,STEPSIZE_MIN;
 
+extern int count;
+
 // CONSTANTS.C
 //////////////
 

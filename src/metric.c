@@ -1527,7 +1527,7 @@ void initialize_photon(double alpha, double beta, double photon_u[8],
         photon_u_KS[i + 4] = photon_u[i + 4];
     }
 
-    KS_to_CKS_u(photon_u_KS, photon_u);
+    KS_to_CKS_u(photon_u_KS, photon_u);//spherical to Cartesian
 
 #endif
     // printf("\n INITIAL NORM = %+.15e", inner_product(Xcam_u, k_u, k_u));

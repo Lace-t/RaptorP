@@ -1,12 +1,12 @@
 from rapplot import Raptor
 import matplotlib.pyplot as plt
 
-angle=10
-jet=Raptor(6.5e9,16.8e3,f'img_data_40_{angle}.00.h5',
-           root='/home/titan/Desktop/Raptor/df/output_kappa')
-print(jet.mas)
+angle=90
+jet=Raptor(6.5e9,16.8e3,f'img_data_40_{angle}.00.h5',offset=30,unit='rg',
+           root='output')
+#print(jet.mas)
 print(jet.keys())
-'''
+
 if angle==1:
     jet.plot_stokes(230,figsize=(12,10))
     plt.suptitle(r'$1^\circ$ PowerLaw a=4',y=0.99,fontsize=15)
@@ -31,13 +31,14 @@ elif angle=='17d':
     plt.tight_layout()
     plt.savefig('figure/17d.png',dpi=150)
 elif angle==45:
-    jet.plot_stokes(86,size=((-250,250),(-400,400)),figsize=(8,10))
-    plt.suptitle(r'$45^\circ$ PowerLaw a=4',y=0.99,fontsize=15)
+    jet.plot_stokes(1)
+    #plt.suptitle(r'$45^\circ$',y=0.99,fontsize=15)
     plt.tight_layout()
     #plt.savefig('45.png',dpi=150)
     plt.show()
 if angle==90:
-    jet.plot_stokes(86,figsize=(8,10))
+    jet.plot_stokes(1.5)
+    #jet.plot_poldeg(1)
     #plt.suptitle(r'$90^\circ$ Thermal',y=0.99,fontsize=15)
     #plt.tight_layout()
     #plt.savefig('90.png',dpi=150)
@@ -52,7 +53,7 @@ elif angle==163:
     plt.suptitle(r'$163^\circ$ PowerLaw a=4',y=0.99,fontsize=15)
     plt.tight_layout()
     plt.savefig('163.png',dpi=150)
-
+'''
 if angle==1:
     jet.plot_evpa(230,figsize=(6,5),npix=10,arrow=4,width=0.005)
     plt.suptitle(r'$1^\circ$ Thermal',y=0.99,fontsize=15)
