@@ -53,9 +53,7 @@ The active distribution is set via:
 
 The relativistic Maxwell-Jüttner distribution for electrons at temperature $`\theta_e = k_B T_e / (m_e c^2)`$:
 
-$$
-f(\gamma) \propto \gamma^2 \beta \, e^{-\gamma/\theta_e}
-$$
+$f(\gamma) \propto \gamma^2 \beta \, e^{-\gamma/\theta_e}$
 
 
 Emission and absorption coefficients use the fitting functions from Leung et al. (2011) and Pandya et al. (2016).
@@ -64,9 +62,7 @@ Emission and absorption coefficients use the fitting functions from Leung et al.
 
 The κ-distribution describes a thermal core with a power-law tail:
 
-$$
-f(\gamma) \propto \frac{\gamma(\gamma^2 - 1)^{1/2}}{(1 + \gamma/\kappa w)^{\kappa+1}}
-$$
+$ f(\gamma) \propto \frac{\gamma(\gamma^2 - 1)^{1/2}}{(1 + \gamma/\kappa w)^{\kappa+1}} $
 
 
 where $`w = (\kappa-3)\theta_e/\kappa`$. The κ-index is set by `kappa_const` (default 4.0). Emission and absorption use the fitting functions from Pandya et al. (2016) and Davelaar et al. (2019).
@@ -75,9 +71,7 @@ where $`w = (\kappa-3)\theta_e/\kappa`$. The κ-index is set by `kappa_const` (d
 
 A pure power-law distribution between $`\gamma_{\rm min}`$ and $`\gamma_{\rm max}`$:
 
-$$
-f(\gamma) \propto \gamma^{-p}, \quad \gamma_{\rm min} \leq \gamma \leq \gamma_{\rm max}
-$$
+$ f(\gamma) \propto \gamma^{-p}, \quad \gamma_{\rm min} \leq \gamma \leq \gamma_{\rm max} $
 
 
 where $`p`$ = `Power` (default 2.3), $`\gamma_{\rm min}`$ = `Gamma_min` (default 1e3), $`\gamma_{\rm max}`$ = `Gamma_max` (default 1e6).
