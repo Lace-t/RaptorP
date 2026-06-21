@@ -78,7 +78,7 @@ where $`p`$ = `Power` (default 2.3), $`\gamma_{\rm min}`$ = `Gamma_min` (default
 
 #### Variable Kappa (`VAR_KAPPA`)
 
-Hybrid model: a fraction $`1-\mathcal{E}`$ of electrons follow a thermal distribution and a fraction $`\mathcal{E}`$ follow a κ-distribution. The κ index and nonthermal efficiency $`\mathcal{E}`$ are computed from the local plasma parameters $`\beta`$ and $`\sigma`$ using PIC simulation fits.
+Hybrid model: a fraction $`1-\mathcal{E}`$ of electrons follow a thermal distribution and a fraction $`\mathcal{E}`$ follow a κ-distribution. The κ index and nonthermal efficiency $`\mathcal{E}`$ are computed from the local plasma parameters $`\beta`$ and $`\sigma`$ using PIC simulation fits. $w$ is determined through a cubic equation in the appendix of [Hu et al.(2025)]((https://ui.adsabs.harvard.edu/abs/2025ApJ...995...76H/abstract)).
 
 #### Variable Power-Law (`VAR_POWER`)
 
