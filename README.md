@@ -62,7 +62,7 @@ Emission and absorption coefficients use the fitting functions from Leung et al.
 
 The κ-distribution describes a thermal core with a power-law tail:
 
-$ f(\gamma) \propto \frac{\gamma(\gamma^2 - 1)^{1/2}}{(1 + \gamma/\kappa w)^{\kappa+1}} $
+$f(\gamma) \propto \frac{\gamma(\gamma^2 - 1)^{1/2}}{(1 + \gamma/\kappa w)^{\kappa+1}}$
 
 
 where $`w = (\kappa-3)\theta_e/\kappa`$. The κ-index is set by `kappa_const` (default 4.0). Emission and absorption use the fitting functions from Pandya et al. (2016) and Davelaar et al. (2019).
@@ -71,7 +71,7 @@ where $`w = (\kappa-3)\theta_e/\kappa`$. The κ-index is set by `kappa_const` (d
 
 A pure power-law distribution between $`\gamma_{\rm min}`$ and $`\gamma_{\rm max}`$:
 
-$ f(\gamma) \propto \gamma^{-p}, \quad \gamma_{\rm min} \leq \gamma \leq \gamma_{\rm max} $
+$f(\gamma) \propto \gamma^{-p}, \quad \gamma_{\rm min} \leq \gamma \leq \gamma_{\rm max}$
 
 
 where $`p`$ = `Power` (default 2.3), $`\gamma_{\rm min}`$ = `Gamma_min` (default 1e3), $`\gamma_{\rm max}`$ = `Gamma_max` (default 1e6).
@@ -106,15 +106,11 @@ The fitting functions provide $`\mathcal{E}(\beta, \sigma)`$ and $`\kappa(\beta,
 **Turbulence model (Meringolo+2023)** — applicable for $0.1 < \sigma < 10$, $10^{-4} < \beta < 2$:
 
 Efficiency:
-$$
-\mathcal{E}(\sigma, \beta) = e_0 + \frac{e_1}{\sqrt{\sigma}} + e_2 \sigma^{1/10} \tanh\!\big(e_3 \beta \sigma^{1/10}\big)
-$$
+$\mathcal{E}(\sigma, \beta) = e_0 + \frac{e_1}{\sqrt{\sigma}} + e_2 \sigma^{1/10} \tanh\!\big(e_3 \beta \sigma^{1/10}\big)$
 with $e_0 = 1$, $e_1 = -0.23$, $e_2 = 0.5$, $e_3 = -10.18$.
 
 Kappa index:
-$$
-\kappa(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.6} \tanh\!\big(a_3 \beta \sigma^{0.1}\big)
-$$
+$\kappa(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.6} \tanh\!\big(a_3 \beta \sigma^{0.1}\big)$
 with $a_0 = 2.8$, $a_1 = 0.2$, $a_2 = 1.6$, $a_3 = 2.25$. Clipped to $3.1 \leq \kappa \leq 7.5$.
 
 Note: The power-law index `Power` is user-specified (default 2.3) and not computed from PIC fits for the turbulence case with `VAR_POWER`.
@@ -122,21 +118,15 @@ Note: The power-law index `Power` is user-specified (default 2.3) and not comput
 **Reconnection model (Ball+2018)** — applicable for $0.01 < \sigma < 7.2$, $10^{-4} < \beta < 2.5$:
 
 Efficiency:
-$$
-\mathcal{E}(\sigma, \beta) = e_0 + \frac{e_1}{4.2\sigma^{0.55} + 1} + e_2 \sigma^{0.07} \tanh\!\big(e_3 \beta \sigma^{0.13}\big)
-$$
+$\mathcal{E}(\sigma, \beta) = e_0 + \frac{e_1}{4.2\sigma^{0.55} + 1} + e_2 \sigma^{0.07} \tanh\!\big(e_3 \beta \sigma^{0.13}\big)$
 with $e_0 = 1$, $e_1 = -1$, $e_2 = 0.64$, $e_3 = -68$.
 
 Kappa index:
-$$
-\kappa(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.19} \tanh\!\big(a_3 \beta \sigma^{0.26}\big)
-$$
+$\kappa(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.19} \tanh\!\big(a_3 \beta \sigma^{0.26}\big)$
 with $a_0 = 2.8$, $a_1 = 0.7$, $a_2 = 3.7$, $a_3 = 23.4$. Clipped to $3.1 \leq \kappa \leq 7.5$.
 
 Power-law index for reconnection (`VAR_POWER`):
-$$
-p(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.19} \tanh\!\big(a_3 \beta \sigma^{0.26}\big)
-$$
+$p(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.19} \tanh\!\big(a_3 \beta \sigma^{0.26}\big)$
 Clipped to $2.1 \leq p \leq 4.6$.
 
 ### 3.3 Other Important Parameters
