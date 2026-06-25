@@ -150,7 +150,7 @@ double get_eta(double theta_e,double B,double eff,double beta,double sigma,
     double f_theta_e=(6+15*theta_e)/(4+5*theta_e);
     *gamma_min=1+f_theta_e*theta_e;
     *gamma_max=Gamma_max;
-    *gamma_br=3.9e3*pow(B/100.0, -2.0);
+    *gamma_br=7.74e4/T_dyn/pow(B/100,2.);
     *ratio=(pow(*gamma_min,1.-*power)-pow(*gamma_br,1.-*power))/(pow(*gamma_min,1.-*power)-pow(*gamma_br,1.-*power)+
                (1.-1./ *power)*(pow(*gamma_br,-*power)-pow(*gamma_max,-*power)));
     if (*ratio>0.99) *ratio=1.;
@@ -356,14 +356,17 @@ double rho_Q(double theta_e, double n_e, double nu, double B, double theta_B, do
     {
         rQ_kappa = 0;
     }
-    double nu_break = 2.5e30/(B/100.);
-    if (nu > nu_break)
-    {
-        return ((1. - eff) * rho_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * rQ_kappa)/sqrt(nu/nu_break);
-    }
-    else{
-        return ((1. - eff) * rho_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * rQ_kappa);
-    }
+    return rQ_kappa;
+    // double nu_break = 2.5e15/(B/100.);
+    // if (nu > nu_break)
+    // {
+    //     //return ((1. - eff) * rho_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * rQ_kappa)/sqrt(nu/nu_break);
+    //     return rQ_kappa/sqrt(nu/nu_break);
+    // }
+    // else{
+    //     //return ((1. - eff) * rho_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * rQ_kappa);
+    //     return rQ_kappa;
+    // }
 #elif (DF == POWER)
     return rho_Q_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);
 #elif (DF == TH)
@@ -489,14 +492,17 @@ double rho_V(double theta_e, double n_e, double nu, double B, double theta_B, do
     {
         rV_kappa = 0;
     }
-    double nu_break = 2.5e30/(B/100.);
-    if (nu > nu_break)
-    {
-        return ((1. - eff) * rho_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * rV_kappa)/sqrt(nu/nu_break);
-    }
-    else{
-        return ((1. - eff) * rho_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * rV_kappa);
-    }
+    return rV_kappa;
+    // double nu_break = 2.5e15/(B/100.);
+    // if (nu > nu_break)
+    // {
+    //     //return ((1. - eff) * rho_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * rV_kappa)/sqrt(nu/nu_break);
+    //     return rV_kappa/sqrt(nu/nu_break);
+    // }
+    // else{
+    //     //return ((1. - eff) * rho_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * rV_kappa);
+    //     return rV_kappa;
+    // }
 
 #elif (DF == POWER)
     return rho_V_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);
@@ -582,7 +588,12 @@ double j_I_power(double theta_e, double n_e, double nu, double B,double theta_B,
 double j_I(double theta_e, double n_e, double nu, double B, double theta_B, double beta, double sigma) {
 
 #if (DF == KAPPA)
-    return j_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        return j_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma)/sqrt(nu/nu_break);
+    }
+    else {return j_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);}
+
 #elif (DF == VAR_KAPPA)
     double eff;
     eff = get_efficiency(sigma, beta);
@@ -591,17 +602,23 @@ double j_I(double theta_e, double n_e, double nu, double B, double theta_B, doub
     {
         jI_kappa = 0;
     }
-    double nu_break = 2.5e30/(B/100.);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
     if (nu > nu_break)
     {
-        return ((1. - eff) * j_I_thermal(theta_e, n_e, nu, B, theta_B) + eff * jI_kappa)/sqrt(nu/nu_break);
+        //return ((1. - eff) * j_I_thermal(theta_e, n_e, nu, B, theta_B) + eff * jI_kappa)/sqrt(nu/nu_break);
+        return jI_kappa/sqrt(nu/nu_break);
     }
     else{
-        return ((1. - eff) * j_I_thermal(theta_e, n_e, nu, B, theta_B) + eff * jI_kappa);
+        //return ((1. - eff) * j_I_thermal(theta_e, n_e, nu, B, theta_B) + eff * jI_kappa);
+        return jI_kappa;
     }
 
 #elif (DF == POWER)
-    return j_I_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        return j_I_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max)/sqrt(nu/nu_break);
+    }
+    else {return j_I_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);}
 #elif (DF == TH)
     return j_I_thermal(theta_e, n_e, nu, B, theta_B);
 #elif (DF == VAR_POWER)
@@ -679,7 +696,11 @@ double j_Q_power(double theta_e, double n_e, double nu, double B,double theta_B,
 
 double j_Q(double theta_e, double n_e, double nu, double B, double theta_B, double beta, double sigma) {
 #if (DF == KAPPA)
-    return j_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        return j_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma)/sqrt(nu/nu_break);
+    }
+    else {return j_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);}
 #elif (DF == VAR_KAPPA)
     double eff;
     eff = get_efficiency(sigma, beta);
@@ -688,17 +709,22 @@ double j_Q(double theta_e, double n_e, double nu, double B, double theta_B, doub
     {
         jQ_kappa = 0;
     }
-    double nu_break = 2.5e30/(B/100.);
-    if (nu > nu_break)
-    {
-        return ((1. - eff) * j_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * jQ_kappa)/sqrt(nu/nu_break);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        //return ((1. - eff) * j_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * jQ_kappa)/sqrt(nu/nu_break);
+        return jQ_kappa/sqrt(nu/nu_break);
     }
     else{
-        return ((1. - eff) * j_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * jQ_kappa);
+        //return ((1. - eff) * j_Q_thermal(theta_e, n_e, nu, B, theta_B) + eff * jQ_kappa);
+        return jQ_kappa;
     }
 
 #elif (DF == POWER)
-    return j_Q_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        return j_Q_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max)/sqrt(nu/nu_break);
+    }
+    else {return j_Q_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);}
 #elif (DF == TH)
     return j_Q_thermal(theta_e, n_e, nu, B, theta_B);
 #elif (DF == VAR_POWER)
@@ -783,7 +809,11 @@ double j_V_power(double theta_e, double n_e, double nu, double B,double theta_B,
 
 double j_V(double theta_e, double n_e, double nu, double B, double theta_B, double beta, double sigma) {
 #if (DF == KAPPA)
-    return j_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        return j_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma)/sqrt(nu/nu_break);
+    }
+    else {return j_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);}
 #elif (DF == VAR_KAPPA)
     double eff;
     eff = get_efficiency(sigma, beta);
@@ -792,17 +822,23 @@ double j_V(double theta_e, double n_e, double nu, double B, double theta_B, doub
     {
         jV_kappa = 0;
     }
-    double nu_break = 2.5e30/(B/100.);
-    if (nu > nu_break)
-    {
-        return ((1. - eff) * j_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * jV_kappa)/sqrt(nu/nu_break);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        //return ((1. - eff) * j_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * jV_kappa)/sqrt(nu/nu_break);
+        return jV_kappa/sqrt(nu/nu_break);
     }
     else{
-        return ((1. - eff) * j_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * jV_kappa);
+        //return ((1. - eff) * j_V_thermal(theta_e, n_e, nu, B, theta_B) + eff * jV_kappa);
+        return jV_kappa;
     }
 
 #elif (DF == POWER)
-    return j_V_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);
+    double nu_break = 2.5e18/pow(B/100.,3.)/pow(T_dyn,2.);
+    if (nu > nu_break){
+        return j_V_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max)/sqrt(nu/nu_break);
+    }
+    else {return j_V_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);}
+    
 #elif (DF == TH)
     return j_V_thermal(theta_e, n_e, nu, B, theta_B);
 #elif (DF == VAR_POWER)
@@ -846,7 +882,8 @@ double hyp2F1_f(double theta_e, double beta, double sigma, double kappa) {
 
     // 检查返回状态
     if (status1 != GSL_SUCCESS || status2 != GSL_SUCCESS) {
-        printf("GSL hyp2F1 Error: a=%.4f b=%.4f c=%.4f z=%.4f\n",a,b,c,z);
+        printf("GSL hyp2F1 Error: a=%.4f b=%.4f c=%.4f z=%.4f theta_e=%.4g beta=%.4g sigma=%.4g kappa=%.3g\n",
+                a,b,c,z,theta_e,beta,sigma,kappa);
         exit(1); // 返回默认值或根据需求进行其他处理
     }
 
@@ -917,14 +954,17 @@ double a_I(double theta_e, double n_e, double nu, double B, double theta_B,
     eff = get_efficiency(sigma, beta);
     double aI_kappa = a_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(aI_kappa)) aI_kappa = 0;
-    double nu_break = 2.5e30/(B/100.);
-    if (nu > nu_break)
-    {
-        return ((1. - eff) * a_I_thermal(theta_e, n_e, nu, B, theta_B, jI_thermal) + eff * aI_kappa)/sqrt(nu/nu_break);
-    }
-    else{
-        return ((1. - eff) * a_I_thermal(theta_e, n_e, nu, B, theta_B, jI_thermal) + eff * aI_kappa);
-    }
+    double nu_break = 2.5e15/(B/100.);
+    return aI_kappa;
+    // if (nu > nu_break)
+    // {
+    //     //return ((1. - eff) * a_I_thermal(theta_e, n_e, nu, B, theta_B, jI_thermal) + eff * aI_kappa)/sqrt(nu/nu_break);
+    //     return aI_kappa/sqrt(nu/nu_break);
+    // }
+    // else{
+    //     //return ((1. - eff) * a_I_thermal(theta_e, n_e, nu, B, theta_B, jI_thermal) + eff * aI_kappa);
+    //     return aI_kappa;
+    // }
 
 #elif (DF == POWER)
     return a_I_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);
@@ -1011,14 +1051,17 @@ double a_Q(double theta_e, double n_e, double nu, double B, double theta_B,
     eff = get_efficiency(sigma, beta);
     double aQ_kappa = a_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(aQ_kappa)) aQ_kappa = 0;
-    double nu_break = 2.5e30/(B/100.);
-    if (nu > nu_break)
-    {
-        return ((1. - eff) * a_Q_thermal(theta_e, n_e, nu, B, theta_B, jQ_thermal) + eff * aQ_kappa)/sqrt(nu/nu_break);
-    }
-    else{
-        return ((1. - eff) * a_Q_thermal(theta_e, n_e, nu, B, theta_B, jQ_thermal) + eff * aQ_kappa);
-    }
+    return aQ_kappa;
+    // double nu_break = 2.5e15/(B/100.);
+    // if (nu > nu_break)
+    // {
+    //     //return ((1. - eff) * a_Q_thermal(theta_e, n_e, nu, B, theta_B, jQ_thermal) + eff * aQ_kappa)/sqrt(nu/nu_break);
+    //     return aQ_kappa/sqrt(nu/nu_break);
+    // }
+    // else{
+    //     //return ((1. - eff) * a_Q_thermal(theta_e, n_e, nu, B, theta_B, jQ_thermal) + eff * aQ_kappa);
+    //     return aQ_kappa;
+    // }
 
 #elif (DF == POWER)
     return a_Q_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);
@@ -1116,14 +1159,17 @@ double a_V(double theta_e, double n_e, double nu, double B, double theta_B,
     {
         aV_kappa = 0;
     }
-    double nu_break = 2.5e30/(B/100.);
-    if (nu > nu_break)
-    {
-        return ((1. - eff) * a_V_thermal(theta_e, n_e, nu, B, theta_B, jV_thermal) + eff * aV_kappa)/sqrt(nu/nu_break);
-    }
-    else{
-        return ((1. - eff) * a_V_thermal(theta_e, n_e, nu, B, theta_B, jV_thermal) + eff * aV_kappa);
-    }
+    return aV_kappa;
+    // double nu_break = 2.5e15/(B/100.);
+    // if (nu > nu_break)
+    // {
+    //     //return ((1. - eff) * a_V_thermal(theta_e, n_e, nu, B, theta_B, jV_thermal) + eff * aV_kappa)/sqrt(nu/nu_break);
+    //     return aV_kappa/sqrt(nu/nu_break);
+    // }
+    // else{
+    //     //return ((1. - eff) * a_V_thermal(theta_e, n_e, nu, B, theta_B, jV_thermal) + eff * aV_kappa);
+    //     return aV_kappa;
+    // }
 
 #elif (DF == POWER)
     return a_V_power(theta_e, n_e, nu, B, theta_B,Power,Gamma_min,Gamma_max);

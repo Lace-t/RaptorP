@@ -36,6 +36,7 @@ double dx1min=1.e40,dx1max=0.,dx2min=1.e40,dx2max=0.,dx3min=1.e40,dx3max=0.;
 double L_unit, T_unit;
 double RHO_unit, U_unit, B_unit;
 double Ne_unit, Thetae_unit;
+double T_dyn;//system dynamical time(used to estimate gamma_br)
 
 // FUNCTIONS
 ////////////
@@ -46,10 +47,14 @@ void init_model() {
 
     fprintf(stderr, "\nStarting read in of PLUTO RMHD data...\n");
 
-    init_rmhd_data(RMHD_FILE);
+    //init_rmhd_data(RMHD_FILE);
     //init_axis_data(RMHD_FILE);//z-axisymmetric
     //init_trace_data(RMHD_FILE);//include tracer
     //init_axis_trace_data(RMHD_FILE);//z-axisymmetry and include tracer
+    init_artificial_data();
+
+    T_dyn=(x3r[N3-1]-x3l[0])*L_unit/SPEED_OF_LIGHT;
+    printf("System Dynamic time: %.2f\n",T_dyn);
 }
 
 void init_rmhd_data(char *fname) {
@@ -267,6 +272,12 @@ int get_fluid_params(double X[NDIM], struct GRMHD *modvar) {
     Thetae_unit = 1. / 3. * (MPoME) / (trat + 1);
 
     (*modvar).theta_e = (uu / rho) * Thetae_unit;
+
+    // if (sqrt(X[1]*X[1]+X[2]*X[2])>2.0 && (*modvar).B>1.e-39){
+    //     printf("X=%g %g %g n_e=%g b=%g\n",X[1],X[2],X[3],
+    //         (*modvar).n_e,(*modvar).B);
+    //     exit(1);
+    // }
 
     // i=ti,j=tj,k=tk;
     // //printf("%d %d %d\n",i,j,k);

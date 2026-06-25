@@ -54,7 +54,9 @@ The active distribution is set via:
 The relativistic Maxwell-Jüttner distribution for electrons at temperature $`\theta_e = k_B T_e / (m_e c^2)`$:
 
 $$
+\begin{aligned}
 f(\gamma) \propto \gamma^2 \beta \, e^{-\gamma/\theta_e}
+\end{aligned}
 $$
 
 
@@ -65,7 +67,9 @@ Emission and absorption coefficients use the fitting functions from Leung et al.
 The κ-distribution describes a thermal core with a power-law tail:
 
 $$
+\begin{aligned}
 f(\gamma) \propto \frac{\gamma(\gamma^2 - 1)^{1/2}}{(1 + \gamma/\kappa w)^{\kappa+1}}
+\end{aligned}
 $$
 
 
@@ -76,7 +80,9 @@ where $`w = (\kappa-3)\theta_e/\kappa`$. The κ-index is set by `kappa_const` (d
 A pure power-law distribution between $`\gamma_{\rm min}`$ and $`\gamma_{\rm max}`$:
 
 $$
+\begin{aligned}
 f(\gamma) \propto \gamma^{-p}, \quad \gamma_{\rm min} \leq \gamma \leq \gamma_{\rm max}
+\end{aligned}
 $$
 
 
@@ -113,13 +119,17 @@ The fitting functions provide $`\mathcal{E}(\beta, \sigma)`$ and $`\kappa(\beta,
 
 Efficiency:
 $$
+\begin{aligned}
 \mathcal{E}(\sigma, \beta) = e_0 + \frac{e_1}{\sqrt{\sigma}} + e_2 \sigma^{1/10} \tanh\!\big(e_3 \beta \sigma^{1/10}\big)
+\end{aligned}
 $$
 with $e_0 = 1$, $e_1 = -0.23$, $e_2 = 0.5$, $e_3 = -10.18$.
 
 Kappa index:
 $$
+\begin{aligned}
 \kappa(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.6} \tanh\!\big(a_3 \beta \sigma^{0.1}\big)
+\end{aligned}
 $$
 with $a_0 = 2.8$, $a_1 = 0.2$, $a_2 = 1.6$, $a_3 = 2.25$. Clipped to $3.1 \leq \kappa \leq 7.5$.
 
@@ -129,19 +139,25 @@ Note: The power-law index `Power` is user-specified (default 2.3) and not comput
 
 Efficiency:
 $$
+\begin{aligned}
 \mathcal{E}(\sigma, \beta) = e_0 + \frac{e_1}{4.2\sigma^{0.55} + 1} + e_2 \sigma^{0.07} \tanh\!\big(e_3 \beta \sigma^{0.13}\big)
+\end{aligned}
 $$
 with $e_0 = 1$, $e_1 = -1$, $e_2 = 0.64$, $e_3 = -68$.
 
 Kappa index:
 $$
+\begin{aligned}
 \kappa(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.19} \tanh\!\big(a_3 \beta \sigma^{0.26}\big)
+\end{aligned}
 $$
 with $a_0 = 2.8$, $a_1 = 0.7$, $a_2 = 3.7$, $a_3 = 23.4$. Clipped to $3.1 \leq \kappa \leq 7.5$.
 
 Power-law index for reconnection (`VAR_POWER`):
 $$
+\begin{aligned}
 p(\sigma, \beta) = a_0 + \frac{a_1}{\sqrt{\sigma}} + a_2 \sigma^{-0.19} \tanh\!\big(a_3 \beta \sigma^{0.26}\big)
+\end{aligned}
 $$
 Clipped to $2.1 \leq p \leq 4.6$.
 
@@ -204,7 +220,9 @@ STEPSIZE_MIN    (-)      0.01
 The electron–proton temperature ratio is given by:
 
 $$
+\begin{aligned}
 \frac{T_p}{T_e} = R_{\rm high} \frac{\beta^2}{1+\beta^2} + R_{\rm low} \frac{1}{1+\beta^2}
+\end{aligned}
 $$
 The electron temperature is then $`\theta_e = \frac{m_p}{m_e} \frac{u}{\rho} / (1 + T_p/T_e)`$ where $u/\rho$ is the specific internal energy.
 
@@ -247,7 +265,10 @@ void init_model() {
     init_rmhd_data(RMHD_FILE);                    // (1) Standard 3D data
     //init_axis_data(RMHD_FILE);                   // (2) z-axisymmetric (mirror across z=0)
     //init_trace_data(RMHD_FILE);                  // (3) Includes tracer to mask ambient
-    //init_axis_trace_data(RMHD_FILE);             // (4) z-axisymmetric + tracer
+    //init_axis_trace_data(RMHD_FILE);  // (4) z-axisymmetric + tracer
+    
+    T_dyn=(x3r[N3-1]-x3l[0])*L_unit/SPEED_OF_LIGHT;
+    printf("System Dynamic time: %.2f\n",T_dyn);
 }
 ```
 
@@ -278,6 +299,17 @@ B_{\rm unit} &= c \sqrt{4\pi \rho_{\rm unit}} \quad [\text{Gauss}] \\
 n_{e,\rm unit} &= \rho_{\rm unit} / (m_p + m_e) \quad [\text{cm}^{-3}]
 \end{aligned}
 $$
+
+### 5.4 Cooling term
+
+​	Synchrotron cooling at high frequency could add 0.5 to the index of  SED, we add this effect to emissivity in **DF=POWER/KAPPA/VAR_POWER/VAR_KAPPA** . The break $\gamma$ and is connected to the local magnetic field and the age of the system(e.g. Section 3.2 in [Chatterjee et a. (2021)](https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.5281C/abstract)):
+$$
+\begin{aligned}
+t_{dyn}=t_{c}&=\frac{6\pi m_e c^3}{\sigma_Tb^2\gamma_{br}v_{br}^2}\simeq\frac{6\pi m_e c}{\sigma_Tb^2\gamma_{br}}\Rightarrow \gamma_{br}\approx\frac{7.74\times10^4}{t_{dyn} (b/100\ G)^2}\\
+\nu_c&=\frac{3eB}{4\pi m_e c}\gamma_c^2\approx\frac{2.5\times10^{18}}{t_{dyn}^2(b/100\ G)^3}\ Hz
+\end{aligned}
+$$
+where $t_{dyn}$ is `T_dyn` in `init_model()`. The default value is  (length in z-direction / speed of light). You may set it manually.
 
 ## 6. How to Run
 
