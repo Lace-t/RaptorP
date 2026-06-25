@@ -234,6 +234,7 @@ $$
 \frac{T_p}{T_e} = R_{\rm high} \frac{\beta^2}{1+\beta^2} + R_{\rm low} \frac{1}{1+\beta^2}
 \end{aligned}
 $$
+
 The electron temperature is then $`\theta_e = \frac{m_p}{m_e} \frac{u}{\rho} / (1 + T_p/T_e)`$ where $u/\rho$ is the specific internal energy.
 
 #### Camera Parameters
