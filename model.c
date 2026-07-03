@@ -47,14 +47,13 @@ void init_model() {
 
     fprintf(stderr, "\nStarting read in of PLUTO RMHD data...\n");
 
-    //init_rmhd_data(RMHD_FILE);
+    init_rmhd_data(RMHD_FILE);
     //init_axis_data(RMHD_FILE);//z-axisymmetric
-    //init_trace_data(RMHD_FILE);//include tracer
-    //init_axis_trace_data(RMHD_FILE);//z-axisymmetry and include tracer
-    init_artificial_data();
+    //init_trace_data(RMHD_FILE,0);//include tracer
+    //init_axis_trace_data(RMHD_FILE,0);//z-axisymmetry and include tracer
 
     T_dyn=(x3r[N3-1]-x3l[0])*L_unit/SPEED_OF_LIGHT;
-    printf("System Dynamic time: %.2f\n",T_dyn);
+    printf("\nSystem Dynamic time: %.2f\n",T_dyn);
 }
 
 void init_rmhd_data(char *fname) {

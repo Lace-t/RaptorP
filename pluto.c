@@ -164,7 +164,9 @@ void init_axis_data(char *fname){
 }
 
 //use a tracer exclude the ambient environment
-void init_trace_data(char *fname){
+// The location of the tracer is not fixed in .dbl. Default: 'trc' follows 'prs', so jump=0. 
+// You may need to check dbl.out to set jump correctly.
+void init_trace_data(char *fname,int jump){
     int i,j,k,m,n,success;
     double devi;
     char line[256];
@@ -279,6 +281,7 @@ void init_trace_data(char *fname){
         printf(".");
     }
     //load tracer
+    double *buffer = malloc(N1*N2*N3*sizeof(double));
     double ***trace;
     trace = (double ***)malloc(N1 * sizeof(double **));
     for (j = 0; j < N1; j++) {
@@ -286,6 +289,10 @@ void init_trace_data(char *fname){
         for (k = 0; k < N2; k++) {
             trace[j][k] = (double *)malloc(N3 * sizeof(double));
         }
+    }
+    //skip useless data
+    for (i=0;i<jump;i++){
+        size_t elements_read = fread(buffer, sizeof(double), N3*N2*N1, fp);
     }
 
     for(k=0;k<N3;k++){
@@ -319,7 +326,7 @@ void init_trace_data(char *fname){
 //    printf("%lf",p[KRHO][15][215][200]);
 }
 
-void init_axis_trace_data(char *fname){
+void init_axis_trace_data(char *fname,int jump){
     int i,j,k,m,n,success;
     double devi;
     char line[256];
@@ -434,6 +441,7 @@ void init_axis_trace_data(char *fname){
         printf(".");
     }
     //load tracer
+    double *buffer = malloc(N1*N2*N3*sizeof(double));
     double ***trace;
     trace = (double ***)malloc(N1 * sizeof(double **));
     for (j = 0; j < N1; j++) {
@@ -442,7 +450,11 @@ void init_axis_trace_data(char *fname){
             trace[j][k] = (double *)malloc(N3 * sizeof(double));
         }
     }
-
+    //skip useless data
+     for (i=0;i<jump;i++){
+        size_t elements_read = fread(buffer, sizeof(double), N3*N2*N1, fp);
+    }
+    
     for(k=0;k<N3;k++){
         for(j=0;j<N2;j++){
             for(i=0;i<N1;i++){

@@ -27,5 +27,5 @@ extern double dx1min,dx1max,dx2min,dx2max,dx3min,dx3max;
 extern double L_unit, T_unit;
 extern double RHO_unit, U_unit, B_unit;
 extern double Ne_unit, Thetae_unit;
-
+extern double T_dyn;
 #endif // MODEL_GLOBAL_VARS_H
