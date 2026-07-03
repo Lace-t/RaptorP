@@ -321,9 +321,15 @@ t_{dyn}=t_{c}&=\frac{6\pi m_e c^3}{\sigma_Tb^2\gamma_{br}v_{br}^2}\simeq\frac{6\
 \nu_c&=\frac{3eB}{4\pi m_e c}\gamma_c^2\approx\frac{2.5\times10^{18}}{t_{dyn}^2(b/100\ G)^3}\ Hz
 \end{aligned}
 $$
+<<<<<<< HEAD
 
 where $t_{dyn}$ is `T_dyn` in `init_model()`. The default value is  (length in z-direction / speed of light). You may set it manually.
+=======
+>>>>>>> de1cf6ef50dcb682843697ea6e941431051e81a7
 
+where $t_{dyn}$ is `T_dyn` in `init_model()`. The default value is  (length in z-direction/speed of light). You may set it manually.
+
+Then when $\nu>\nu_c$, the emissivity has a form $j/\sqrt{\nu/\nu_c}$ (see `src/pol_emission.c` for details).
 ## 6. How to Run
 
 ### 6.1 Compilation
