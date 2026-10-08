@@ -73,7 +73,7 @@ f(\gamma) \propto \frac{\gamma(\gamma^2 - 1)^{1/2}}{(1 + \gamma/\kappa w)^{\kapp
 $$
 
 
-where $`w = (\kappa-3)\theta_e/\kappa`$. The κ-index is set by `kappa_const` (default 4.0). Emission and absorption use the fitting functions from Pandya et al. (2016) and Davelaar et al. (2019).
+where $w = (\kappa-3)\theta_e/\kappa$. The κ-index is set by `kappa_const` (default 4.0). Emission and absorption use the fitting functions from Pandya et al. (2016) and Davelaar et al. (2019).
 
 #### Power-Law Distribution (`POWER`)
 
@@ -275,20 +275,26 @@ void init_model() {
 
     init_rmhd_data(RMHD_FILE);                    // (1) Standard 3D data
     //init_axis_data(RMHD_FILE);                   // (2) z-axisymmetric (mirror across z=0)
-    //init_trace_data(RMHD_FILE);                  // (3) Includes tracer to mask ambient
-    //init_axis_trace_data(RMHD_FILE);  // (4) z-axisymmetric + tracer
+    //init_trace_data(RMHD_FILE,0);                  // (3) Includes tracer to mask ambient
+    //init_axis_trace_data(RMHD_FILE,-1);  // (4) z-axisymmetric + tracer
+    //init_retard_data(RMHD_FILE,-1);//slow light version(only valid when azimuth=270), tracer is optional
     
     T_dyn=(x3r[N3-1]-x3l[0])*L_unit/SPEED_OF_LIGHT;
     printf("System Dynamic time: %.2f\n",T_dyn);
 }
 ```
 
-| Function                  | File       | Description |
-|:--------------------------|:-----------|:------------|
-| `init_rmhd_data()`        | `model.c`  | Standard 3D PLUTO data read. Reads all 8 primitive variables (ρ, u, v¹, v², v³, B¹, B², B³) from a `.dbl` file. Internal energy is converted: $u_{\rm int} = u / (\gamma_{\rm ad} - 1)$ with $\gamma_{\rm ad} = 4/3$. |
-| `init_axis_data()`        | `pluto.c`  | Same as above, but mirrors the data across the z=0 plane (doubling N3). Velocity and magnetic field components are sign-flipped appropriately for symmetry. |
-| `init_trace_data()`       | `pluto.c`  | Includes an additional tracer variable from the `.dbl` file. The tracer is used to mask the ambient (inactive) region to zero density and internal energy. |
-| `init_axis_trace_data()`  | `pluto.c`  | Combines z-axisymmetry with tracer masking. |
+| Function                 | File      | Description                                                  |
+| :----------------------- | :-------- | :----------------------------------------------------------- |
+| `init_rmhd_data()`       | `model.c` | Standard 3D PLUTO data read. Reads all 8 primitive variables (ρ, u, v¹, v², v³, B¹, B², B³) from a `.dbl` file. Internal energy is converted: $u_{\rm int} = u / (\gamma_{\rm ad} - 1)$ with $\gamma_{\rm ad} = 4/3$. |
+| `init_axis_data()`       | `pluto.c` | Same as above, but mirrors the data across the z=0 plane (doubling N3). Velocity and magnetic field components are sign-flipped appropriately for symmetry. |
+| `init_trace_data()`      | `pluto.c` | Includes an additional tracer variable from the `.dbl` file. The tracer is used to mask the ambient (inactive) region to zero density and internal energy. |
+| `init_axis_trace_data()` | `pluto.c` | Combines z-axisymmetry with tracer masking.                  |
+| `init_retard_data()`     | `pluto.c` | Include light-travel effect, you need to specify the slow-light region and output cadence inside this function |
+
+`jump` value appears as the second parameter in `init_trace_data()`,`init_axis_trace_data()`, `init_retard_data()`, representing the order difference  between  `trc`   and `prs`   (see `dbl.out`)
+
+default: -1 no tracer
 
 ### 5.2 `grid.out` Path
 
@@ -321,13 +327,7 @@ t_{dyn}=t_{c}&=\frac{6\pi m_e c^3}{\sigma_Tb^2\gamma_{br}v_{br}^2}\simeq\frac{6\
 \nu_c&=\frac{3eB}{4\pi m_e c}\gamma_c^2\approx\frac{2.5\times10^{18}}{t_{dyn}^2(b/100\ G)^3}\ Hz
 \end{aligned}
 $$
-<<<<<<< HEAD
-
 where $t_{dyn}$ is `T_dyn` in `init_model()`. The default value is  (length in z-direction / speed of light). You may set it manually.
-=======
->>>>>>> de1cf6ef50dcb682843697ea6e941431051e81a7
-
-where $t_{dyn}$ is `T_dyn` in `init_model()`. The default value is  (length in z-direction/speed of light). You may set it manually.
 
 Then when $\nu>\nu_c$, the emissivity has a form $j/\sqrt{\nu/\nu_c}$ (see `src/pol_emission.c` for details).
 ## 6. How to Run
@@ -381,6 +381,10 @@ If you use RaptorP in your research, please cite the original RAPTOR papers and 
 **RaptorP application:**
 > Hu, X., et al. 2025, ApJ, 995, 76
 > [https://ui.adsabs.harvard.edu/abs/2025ApJ...995...76H/abstract](https://ui.adsabs.harvard.edu/abs/2025ApJ...995...76H/abstract)
+
+**RaptorP slow-light:**
+
+> To be update
 
 **RAPTOR code papers:**
 

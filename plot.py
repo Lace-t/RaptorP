@@ -37,7 +37,7 @@ elif angle==45:
     #plt.savefig('45.png',dpi=150)
     plt.show()
 if angle==90:
-    jet.plot_stokes(230)
+    jet.plot_stokes(86)
     #jet.plot_poldeg(1)
     #plt.suptitle(r'$90^\circ$ Thermal',y=0.99,fontsize=15)
     #plt.tight_layout()

@@ -218,12 +218,18 @@ double get_w_kappa(double theta_e, double beta, double sigma, double kappa) {
             if (x1>w) w=x1;
             if (x2>w) w=x2;
         }
-		if (w<0){
+		if (w<(theta_e*(kappa-3.)/(kappa*(1.-eff)))){
 			//printf("negative w\n");
 			w=theta_e*(kappa-3.)/(kappa*(1.-eff));//return to Hongxuan's
 			//exit(0);
 		}
     }
+    // double w0=(kappa-3)*theta_e/kappa;
+    // if ((w/w0)>10. || w/w0<0.1){
+    //     printf("w err: theta_e=%.2e beta=%.2e sigma=%.2e kappa=%.2e eff=%.2e w=%.2e w0=%e\n",
+    //            theta_e,beta,sigma,kappa,eff,w,w0);
+    //     exit(1);
+    // }
     return w;
 }
 
@@ -349,8 +355,8 @@ double rho_Q(double theta_e, double n_e, double nu, double B, double theta_B, do
 #if (DF == KAPPA)
     return rho_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    //double eff;
+    //eff = get_efficiency(sigma, beta);
     double rQ_kappa = rho_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(rQ_kappa))
     {
@@ -485,8 +491,8 @@ double rho_V(double theta_e, double n_e, double nu, double B, double theta_B, do
 #if (DF == KAPPA)
     return rho_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    // double eff;
+    // eff = get_efficiency(sigma, beta);
     double rV_kappa = rho_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(rV_kappa))
     {
@@ -595,8 +601,8 @@ double j_I(double theta_e, double n_e, double nu, double B, double theta_B, doub
     else {return j_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);}
 
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    // double eff;
+    // eff = get_efficiency(sigma, beta);
     double jI_kappa = j_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(jI_kappa))
     {
@@ -702,8 +708,8 @@ double j_Q(double theta_e, double n_e, double nu, double B, double theta_B, doub
     }
     else {return j_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);}
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    // double eff;
+    // eff = get_efficiency(sigma, beta);
     double jQ_kappa = j_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(jQ_kappa))
     {
@@ -815,8 +821,8 @@ double j_V(double theta_e, double n_e, double nu, double B, double theta_B, doub
     }
     else {return j_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);}
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    // double eff;
+    // eff = get_efficiency(sigma, beta);
     double jV_kappa = j_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(jV_kappa))
     {
@@ -950,11 +956,11 @@ double a_I(double theta_e, double n_e, double nu, double B, double theta_B,
 #if (DF == KAPPA)
     return a_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    // double eff;
+    // eff = get_efficiency(sigma, beta);
     double aI_kappa = a_I_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(aI_kappa)) aI_kappa = 0;
-    double nu_break = 2.5e15/(B/100.);
+    //double nu_break = 2.5e15/(B/100.);
     return aI_kappa;
     // if (nu > nu_break)
     // {
@@ -1047,8 +1053,8 @@ double a_Q(double theta_e, double n_e, double nu, double B, double theta_B,
 #if (DF == KAPPA)
     return a_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    // double eff;
+    // eff = get_efficiency(sigma, beta);
     double aQ_kappa = a_Q_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(aQ_kappa)) aQ_kappa = 0;
     return aQ_kappa;
@@ -1152,8 +1158,8 @@ double a_V(double theta_e, double n_e, double nu, double B, double theta_B,
 #if (DF == KAPPA)
     return a_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
 #elif (DF == VAR_KAPPA)
-    double eff;
-    eff = get_efficiency(sigma, beta);
+    // double eff;
+    // eff = get_efficiency(sigma, beta);
     double aV_kappa = a_V_kappa(theta_e, n_e, nu, B, theta_B, beta, sigma);
     if (isnan(aV_kappa))
     {

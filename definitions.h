@@ -75,7 +75,7 @@ typedef struct Camera {
 #define POWER (2) // Power-law distribution
 #define VAR_KAPPA (3) //Reconnection and Turbulence + Kappa
 #define VAR_POWER (4) //Reconnection and Turbulence + PowerLaw
-#define DF (TH)   // Distribution function
+#define DF (VAR_KAPPA)   // Distribution function
 
 #define reconnection (0)
 #define turbulence (1)

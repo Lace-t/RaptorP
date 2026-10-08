@@ -1,25 +1,23 @@
-MBH			(Msun)	6.5e9
-DISTANCE	(kpc)	16.8e3
-M_UNIT		(g)	1.e26
+MBH			(Msun)	5.4e11
+DISTANCE	(kpc)	1.9e6
+M_UNIT		(g)	2.e29
 R_LOW		(-)	1
-R_HIGH		(-)	5    
+R_HIGH		(-)	1
 
-INCLINATION	(deg)       90
+INCLINATION	(deg)       1.4
 azmuth      (deg)       0
-IMG_WIDTH	(pixels)	500
-IMG_HEIGHT	(pixels)	600
-SHIFT       (Rg) 		0
-CAM_SIZE_X	(Rg)		10
-CAM_SIZE_Y	(Rg)        60
+IMG_WIDTH	(pixels)	100
+IMG_HEIGHT	(pixels)	100
+SHIFT       (Rg) 		20
+CAM_SIZE_X	(Rg)		5
+CAM_SIZE_Y	(Rg)        5
 FREQS_PER_DEC	(-)		1
-FREQ		(Hz)		230e9
-STEPSIZE	(-)		0.02
-STEPSIZE_MAX	(-) 0.02
-STEPSIZE_MIN	(-) 0.01
+FREQ		(Hz)		4.6e14
+STEPSIZE	(-)		0.1
+STEPSIZE_MAX	(-) 0.1
+STEPSIZE_MIN	(-) 0.1
+
 
 # （cgs)		L_unit			rho_unit	      v_unit t_unit
 # PLUTO		1.496e13(1AU)	1.67e-24(mp)      c		 499
 # Raptor	G*M_BH/c^2		M_unit/L_unit^3	  c
-#1  10 500 
-#45 0.01 50 500 
-#90 0.02 60 600

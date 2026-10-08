@@ -51,9 +51,11 @@ void init_model() {
     //init_axis_data(RMHD_FILE);//z-axisymmetric
     //init_trace_data(RMHD_FILE,0);//include tracer
     //init_axis_trace_data(RMHD_FILE,0);//z-axisymmetry and include tracer
+    //init_retard_data(RMHD_FILE,-1);//slow light version(only valid when azimuth=270), tracer is optional
 
-    T_dyn=(x3r[N3-1]-x3l[0])*L_unit/SPEED_OF_LIGHT;
-    printf("\nSystem Dynamic time: %.2f\n",T_dyn);
+    //T_dyn=(x3r[N3-1]-x3l[0])*L_unit/SPEED_OF_LIGHT;
+    T_dyn=0.1;
+    fprintf(stderr,"\nSystem Dynamic time: %.2f\n",T_dyn);
 }
 
 void init_rmhd_data(char *fname) {
@@ -257,7 +259,7 @@ int get_fluid_params(double X[NDIM], struct GRMHD *modvar) {
     (*modvar).B = sqrt(bsq) * B_unit + 1e-40;
 
     (*modvar).beta = uu * (gam - 1.) / (0.5 * (bsq + 1.e-40));
-    (*modvar).sigma = bsq / (rho + 1.e-40);
+    (*modvar).sigma = bsq / (rho +gam*uu+ 1.e-40);
 
     beta = (*modvar).beta;
 
@@ -270,7 +272,7 @@ int get_fluid_params(double X[NDIM], struct GRMHD *modvar) {
 
     Thetae_unit = 1. / 3. * (MPoME) / (trat + 1);
 
-    (*modvar).theta_e = (uu / rho) * Thetae_unit;
+    (*modvar).theta_e = (uu / (rho+1.e-40)) * Thetae_unit;
 
     // if (sqrt(X[1]*X[1]+X[2]*X[2])>2.0 && (*modvar).B>1.e-39){
     //     printf("X=%g %g %g n_e=%g b=%g\n",X[1],X[2],X[3],

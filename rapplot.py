@@ -3,6 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import h5py
+import gc
 
 #font = {'size': 16}
 #matplotlib.rc('font', **font)
@@ -180,7 +181,7 @@ class Raptor(object):
                 beta=(((np.reshape(self.__data['beta'][i],(self.__pixels,self.__pixels))))+self.__offset)*self.mas
                 
                 #ax.set_aspect('equal')                
-                figure=ax.pcolormesh(alpha,beta,np.log10(array+1),vmin=np.log10(vmin+1),
+                figure=ax.pcolormesh(alpha,beta,np.log10(array+1e-4),vmin=np.log10(vmin+1e-4),
                                      vmax=np.log10(vmax),cmap=cmap,shading='auto')
         elif scale=='linear':
             for i in range(0,len(self.__data[self.__keys[index]])):  
@@ -304,7 +305,7 @@ class Raptor(object):
             ax.set_ylabel(r"y [$r_g$]")
         plt.tight_layout()
 
-    def plot_poldeg(self,freq,size=None,label='|m|',figsize=(6,8),cmap="Greys"):
+    def plot_poldeg(self,freq,size=None,label=r'$f_p$',figsize=(6,8),cmap="BuPu"):
         '''Plot the fraction of polarization at a certain frequency
 
         parameters

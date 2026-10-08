@@ -9,5 +9,6 @@
 void init_axis_data(char *fname);
 void init_trace_data(char *fname,int jump);
 void init_axis_trace_data(char *fname,int jump);
+void init_retard_data(char *fname,int jump);
 
 #endif // PLUTO_H_INCLUDED
